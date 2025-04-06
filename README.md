@@ -41,28 +41,51 @@ expense-navigator/
 │   ├── admin_dashboard.php      # Admin dashboard interface
 
 │   ├── edit_user.php            # Edit user functionality
+
 ├── user/                        # Files specific to regular user functionalities
+
 │   ├── dashboard.php            # User dashboard interface
+
 │   ├── view_expense.php         # Viewing expense details
+
 │   ├── edit_expense.php         # Editing expense entries
+
 ├── assets/                      # Static resources for the project
+
 │   ├── css/                     # Stylesheets
+
 │   │   ├── styles.css           # Global styles
+
 │   │   ├── dashboard.css        # Dashboard-specific styles
+
 │   │   └── login.css            # Login and registration styles
+
 │   ├── js/                      # JavaScript files
+
 │   │   └── script.js            # General JS functions
+
 │   └── images/                  # Images and screenshots
+
 │       └── logo.png             # Example image file
+
 ├── config/                      # Configuration files
+
 │   └── db.php                   # Database connection and configuration
+
 ├── sql/                         # SQL scripts for setting up the database
+
 │   └── database.sql             # Database schema and sample data
+
 ├── public/                      # Publicly accessible files (if needed)
+
 │   ├── index.php                # Landing page
+
 │   ├── login.php                # Login script and form
+
 │   ├── register.php             # Registration script and form
+
 │   └── logout.php               # Logout functionality
+
 └── README.md                    # Project documentation
 
 
