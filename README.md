@@ -85,6 +85,7 @@ Admins can log in to view, manage, and validate all users' expense data through 
 For testing purposes, use the following admin credentials:
 
 Username: admin
+
 Password: admin
 
 Testing
