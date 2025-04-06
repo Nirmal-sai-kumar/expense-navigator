@@ -37,7 +37,9 @@ Expense Navigator was designed to address the challenges of manual expense track
 
 expense-navigator/
 ├── admin/                       # Files specific to the admin panel
+
 │   ├── admin_dashboard.php      # Admin dashboard interface
+
 │   ├── edit_user.php            # Edit user functionality
 ├── user/                        # Files specific to regular user functionalities
 │   ├── dashboard.php            # User dashboard interface
@@ -66,10 +68,12 @@ expense-navigator/
 
 
 Database Setup:
+
 Import the database.sql file into your MySQL server to create the necessary tables.
 Update the db.php file with your database credentials.
 
 Run the Project:
+
 Use a local server environment like XAMPP or WAMP.
 Place the project folder in the server’s root directory.
 Open your browser and navigate to http://localhost/expense-navigator/.
@@ -77,10 +81,12 @@ Open your browser and navigate to http://localhost/expense-navigator/.
 Usage
 
 User Interface:
+
 Register or log in to access your personalized dashboard.
 Use the dashboard to add new expenses, view existing records, or update/delete entries.
 
 Admin Interface:
+
 Admins can log in to view, manage, and validate all users' expense data through a dedicated dashboard.
 For testing purposes, use the following admin credentials:
 
@@ -89,7 +95,9 @@ Username: admin
 Password: admin
 
 Testing
+
 To test the application, ensure your local server is running and perform the following steps:
+
 Register a new user and log in.
 Add, edit, and delete expense entries.
 Use the provided admin credentials to test the administrative functionalities.
