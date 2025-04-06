@@ -11,9 +11,7 @@ Expense Navigator is a comprehensive web-based expense management system that st
 - [Installation](#installation)
 - [Usage](#usage)
 - [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+
 
 ## Introduction
 
