@@ -17,13 +17,13 @@ $expense_id = intval($_GET['expense_id']);
 
 // Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $expense_date = trim($_POST['expense_date']);
-    $source       = trim($_POST['source']);
-    $amount       = trim($_POST['amount']);
+    $date   = trim($_POST['date']);
+    $source = trim($_POST['source']);
+    $amount = trim($_POST['amount']);
 
     // Update expense record using a prepared statement
-    $stmt = $conn->prepare("UPDATE expenses SET expense_date = ?, source = ?, amount = ? WHERE id = ?");
-    $stmt->bind_param("ssdi", $expense_date, $source, $amount, $expense_id);
+    $stmt = $conn->prepare("UPDATE expenses SET date = ?, source = ?, amount = ? WHERE id = ?");
+    $stmt->bind_param("ssdi", $date, $source, $amount, $expense_id);
     
     if ($stmt->execute()) {
         echo "<script>alert('Expense updated successfully!'); window.location.href='admin_dashboard.php';</script>";
@@ -34,10 +34,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 } else {
     // Fetch the current details of the expense
-    $stmt = $conn->prepare("SELECT expense_date, source, amount FROM expenses WHERE id = ?");
+    $stmt = $conn->prepare("SELECT date, source, amount FROM expenses WHERE id = ?");
     $stmt->bind_param("i", $expense_id);
     $stmt->execute();
-    $stmt->bind_result($expense_date, $source, $amount);
+    $stmt->bind_result($date, $source, $amount);
     
     if (!$stmt->fetch()) {
         die("Expense not found.");
@@ -139,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form action="edit_expense.php?expense_id=<?= urlencode($expense_id) ?>" method="POST">
         <label>Date (YYYY-MM-DD):</label>
-        <input type="date" name="expense_date" value="<?= htmlspecialchars($expense_date) ?>" required>
+        <input type="date" name="date" value="<?= htmlspecialchars($date) ?>" required>
 
         <label>Source:</label>
         <input type="text" name="source" value="<?= htmlspecialchars($source) ?>" required>

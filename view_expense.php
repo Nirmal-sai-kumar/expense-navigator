@@ -9,10 +9,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Automatically add the `user_id` column if it doesn't exist
+// Ensure user_id column exists in expenses
 $sql_check = "SHOW COLUMNS FROM expenses LIKE 'user_id'";
 $result_check = $conn->query($sql_check);
-
 if ($result_check->num_rows === 0) {
     $alter_query = "ALTER TABLE expenses ADD COLUMN user_id INT NOT NULL";
     $conn->query($alter_query);
@@ -35,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_id'])) {
     $source = $_POST['source'];
     $amount = $_POST['amount'];
 
-    $stmt = $conn->prepare("UPDATE expenses SET expense_date = ?, source = ?, amount = ? WHERE id = ? AND user_id = ?");
+    $stmt = $conn->prepare("UPDATE expenses SET date = ?, source = ?, amount = ? WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ssdii", $expense_date, $source, $amount, $update_id, $user_id);
     $stmt->execute();
     
@@ -44,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_id'])) {
 }
 
 // Fetch Expense Records
-$sql = "SELECT id, expense_date, source, amount FROM expenses WHERE user_id = ?";
+$sql = "SELECT id, date, source, amount FROM expenses WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -143,7 +142,6 @@ if (isset($_GET['edit_id'])) {
         button:hover {
             background: #45a049;
         }
-        /* Style for the Go Back link */
         .back-link {
             display: block;
             text-align: center;
@@ -167,7 +165,7 @@ if (isset($_GET['edit_id'])) {
         <input type="hidden" name="update_id" value="<?= $edit_data['id'] ?>">
         
         <label for="expense_date">Date:</label>
-        <input type="date" name="expense_date" value="<?= htmlspecialchars($edit_data['expense_date']) ?>" required>
+        <input type="date" name="expense_date" value="<?= htmlspecialchars($edit_data['date']) ?>" required>
 
         <label for="source">Source:</label>
         <input type="text" name="source" value="<?= htmlspecialchars($edit_data['source']) ?>" required>
@@ -193,7 +191,7 @@ if (isset($_GET['edit_id'])) {
         <tbody>
         <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
-                <td><?= htmlspecialchars($row['expense_date']) ?></td>
+                <td><?= htmlspecialchars($row['date']) ?></td>
                 <td><?= htmlspecialchars($row['source']) ?></td>
                 <td>₹<?= number_format($row['amount'], 2) ?></td>
                 <td>
@@ -208,7 +206,6 @@ if (isset($_GET['edit_id'])) {
     <p style="text-align: center; color: red;">No expense records found!</p>
 <?php endif; ?>
 
-<!-- Go Back to Dashboard Link Below -->
 <a href="dashboard.html" class="back-link">Go Back to Dashboard</a>
 
 <?php

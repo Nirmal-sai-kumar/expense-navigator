@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role     = trim($_POST['role']);
 
     // Prepared statement to prevent SQL injection
-    $sql  = "SELECT * FROM users1 WHERE username = ? AND role = ?";
+    $sql  = "SELECT * FROM users WHERE username = ? AND role = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ss", $username, $role);
     $stmt->execute();

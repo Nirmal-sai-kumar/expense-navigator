@@ -14,8 +14,8 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
 if (isset($_GET['delete_user'])) {
     $user_id = intval($_GET['delete_user']);
     
-    // Delete from users1
-    $stmt = $conn->prepare("DELETE FROM users1 WHERE id = ?");
+    // Delete from users
+    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $stmt->close();
@@ -46,15 +46,15 @@ if (isset($_GET['delete_expense'])) {
 // ----- FETCH DATA -----
 
 // Fetch all users
-$users = $conn->query("SELECT id, username, email, role FROM users1");
+$users = $conn->query("SELECT id, username, email, role FROM users");
 if (!$users) {
     die("Error fetching users: " . $conn->error);
 }
 
-// Fetch all expenses
-$query = "SELECT expenses.id, users1.username, expenses.expense_date, expenses.source, expenses.amount 
+// Fetch all expenses (fixed column name: date instead of expense_date)
+$query = "SELECT expenses.id, users.username, expenses.date, expenses.source, expenses.amount 
           FROM expenses 
-          JOIN users1 ON expenses.user_id = users1.id";
+          JOIN users ON expenses.user_id = users.id";
 $expenses = $conn->query($query);
 if (!$expenses) {
     die("Error fetching expenses: " . $conn->error);
@@ -220,7 +220,7 @@ if (!$expenses) {
             <tr>
                 <td><?= htmlspecialchars($expense['id']) ?></td>
                 <td><?= htmlspecialchars($expense['username']) ?></td>
-                <td><?= htmlspecialchars($expense['expense_date']) ?></td>
+                <td><?= htmlspecialchars($expense['date']) ?></td>
                 <td><?= htmlspecialchars($expense['source']) ?></td>
                 <td>₹<?= number_format($expense['amount'], 2) ?></td>
                 <td>

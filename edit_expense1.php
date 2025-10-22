@@ -42,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_id'])) {
     $source = $_POST['source'];
     $amount = $_POST['amount'];
 
-    $stmt = $conn->prepare("UPDATE expenses SET expense_date = ?, source = ?, amount = ? WHERE id = ? AND user_id = ?");
+    // use `date` column instead of `expense_date`
+    $stmt = $conn->prepare("UPDATE expenses SET date = ?, source = ?, amount = ? WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ssdii", $expense_date, $source, $amount, $update_id, $user_id);
     
     if ($stmt->execute()) {
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_id'])) {
 }
 
 // Fetch Expense Records
-$sql = "SELECT id, expense_date, source, amount FROM expenses WHERE user_id = ?";
+$sql = "SELECT id, date, source, amount FROM expenses WHERE user_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -170,7 +171,6 @@ if (isset($_GET['edit_id'])) {
 </head>
 <body>
 
-
 <h2>Manage Your Expenses</h2>
 
 <!-- Edit Form -->
@@ -179,7 +179,7 @@ if (isset($_GET['edit_id'])) {
         <input type="hidden" name="update_id" value="<?= $edit_data['id'] ?>">
         
         <label for="expense_date">Date:</label>
-        <input type="date" name="expense_date" value="<?= htmlspecialchars($edit_data['expense_date']) ?>" required>
+        <input type="date" name="expense_date" value="<?= htmlspecialchars($edit_data['date']) ?>" required>
 
         <label for="source">Source:</label>
         <input type="text" name="source" value="<?= htmlspecialchars($edit_data['source']) ?>" required>
@@ -206,7 +206,7 @@ if (isset($_GET['edit_id'])) {
         <tbody>
         <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
-                <td><?= htmlspecialchars($row['expense_date']) ?></td>
+                <td><?= htmlspecialchars($row['date']) ?></td>
                 <td><?= htmlspecialchars($row['source']) ?></td>
                 <td>₹<?= number_format($row['amount'], 2) ?></td>
                 <td>

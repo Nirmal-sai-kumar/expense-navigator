@@ -10,11 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];  // Get the current logged-in user ID
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_expense'])) {
-    $date = $_POST['expense_date'];
+    $date = $_POST['expense_date'];  // coming from form input name="expense_date"
     $source = $_POST['source'];
     $amount = $_POST['expense_amount'];
 
-    //  Validate inputs
+    // Validate inputs
     if (empty($date) || empty($source) || empty($amount)) {
         die("<script>alert('All fields are required!'); window.location.href='expense.html';</script>");
     }
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_expense'])) {
     }
 
     // Use prepared statement to insert data with `user_id`
-    $sql = "INSERT INTO expenses (user_id, expense_date, source, amount) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO expenses (user_id, date, source, amount) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     
     if ($stmt) {
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_expense'])) {
         echo "<script>alert('Database query failed!'); window.location.href='expense.html';</script>";
     }
 
-    //  Close connection
+    // Close connection
     $conn->close();
 }
 ?>
