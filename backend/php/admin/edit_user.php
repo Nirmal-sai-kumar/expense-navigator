@@ -1,46 +1,45 @@
 <?php
 session_start();
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 
 // Redirect if not admin
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../public/login.php");
     exit();
 }
 
-// Check if an expense_id is provided
-if (!isset($_GET['expense_id'])) {
-    die("Expense ID is required.");
+// Check if a user_id is provided
+if (!isset($_GET['user_id'])) {
+    die("User ID is required.");
 }
 
-$expense_id = intval($_GET['expense_id']);
+$user_id = intval($_GET['user_id']);
 
 // Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $date   = trim($_POST['date']);
-    $source = trim($_POST['source']);
-    $amount = trim($_POST['amount']);
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['email']);
+    $role     = trim($_POST['role']);
 
-    // Update expense record using a prepared statement
-    $stmt = $conn->prepare("UPDATE expenses SET date = ?, source = ?, amount = ? WHERE id = ?");
-    $stmt->bind_param("ssdi", $date, $source, $amount, $expense_id);
+    // Update user details using a prepared statement
+    $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $username, $email, $role, $user_id);
     
     if ($stmt->execute()) {
-        echo "<script>alert('Expense updated successfully!'); window.location.href='admin_dashboard.php';</script>";
+        echo "<script>alert('User updated successfully!'); window.location.href='admin_dashboard.php';</script>";
         exit();
     } else {
-        echo "Error updating expense: " . $conn->error;
+        echo "Error updating user: " . $conn->error;
     }
     $stmt->close();
 } else {
-    // Fetch the current details of the expense
-    $stmt = $conn->prepare("SELECT date, source, amount FROM expenses WHERE id = ?");
-    $stmt->bind_param("i", $expense_id);
+    // Fetch the current details of the user
+    $stmt = $conn->prepare("SELECT username, email, role FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
-    $stmt->bind_result($date, $source, $amount);
-    
+    $stmt->bind_result($username, $email, $role);
     if (!$stmt->fetch()) {
-        die("Expense not found.");
+        die("User not found.");
     }
     $stmt->close();
 }
@@ -50,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Expense</title>
+    <title>Edit User</title>
     <style>
         /* General Page Styling */
         body {
@@ -62,8 +61,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .container {
-            width: 70%;
-            margin: 50px auto;
+            width: 80%;
+            margin: 30px auto;
             padding: 30px;
             background: white;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -86,24 +85,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #34495e;
         }
 
-        input {
+        input, select, button {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
         }
 
-        input:focus {
+        input:focus, select:focus, button:focus {
             outline: none;
             border-color: #2980b9;
         }
 
         button {
-            padding: 10px 15px;
             background-color: #27ae60;
             color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -135,19 +131,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
 <div class="container">
-    <h2>Edit Expense Record</h2>
+    <h2>Edit User Details</h2>
 
-    <form action="edit_expense.php?expense_id=<?= urlencode($expense_id) ?>" method="POST">
-        <label>Date (YYYY-MM-DD):</label>
-        <input type="date" name="date" value="<?= htmlspecialchars($date) ?>" required>
-
-        <label>Source:</label>
-        <input type="text" name="source" value="<?= htmlspecialchars($source) ?>" required>
-
-        <label>Amount:</label>
-        <input type="number" step="0.01" name="amount" value="<?= htmlspecialchars($amount) ?>" required>
-
-        <button type="submit">Update Expense</button>
+    <form action="edit_user.php?user_id=<?= urlencode($user_id) ?>" method="POST">
+        <label>Username:</label>
+        <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" required>
+        
+        <label>Email:</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
+        
+        <label>Role:</label>
+        <select name="role" required>
+            <option value="user" <?= ($role === 'user') ? 'selected' : '' ?>>User</option>
+            <option value="admin" <?= ($role === 'admin') ? 'selected' : '' ?>>Admin</option>
+        </select>
+        
+        <button type="submit">Update User</button>
     </form>
 
     <a href="admin_dashboard.php">Back to Dashboard</a>

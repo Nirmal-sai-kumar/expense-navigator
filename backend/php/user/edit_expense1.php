@@ -1,9 +1,9 @@
 <?php
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Please log in first!'); window.location.href='login.html';</script>";
+    echo "<script>alert('Please log in first!'); window.location.href='../../frontend/public/login.html';</script>";
     exit();
 }
 
@@ -222,7 +222,7 @@ if (isset($_GET['edit_id'])) {
 <?php endif; ?>
 
 <!-- Go Back to Dashboard Link -->
-<a href="dashboard.html" class="back-link"> Go Back to Dashboard</a>
+<a href="../../frontend/public/dashboard.html" class="back-link"> Go Back to Dashboard</a>
 
 <?php
 $stmt->close();

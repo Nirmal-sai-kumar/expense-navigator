@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $role     = trim($_POST['role']);
 
     // Update user details using a prepared statement
-    $stmt = $conn->prepare("UPDATE users1 SET username = ?, email = ?, role = ? WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?");
     $stmt->bind_param("sssi", $username, $email, $role, $user_id);
     
     if ($stmt->execute()) {
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 } else {
     // Fetch the current details of the user
-    $stmt = $conn->prepare("SELECT username, email, role FROM users1 WHERE id = ?");
+    $stmt = $conn->prepare("SELECT username, email, role FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $stmt->bind_result($username, $email, $role);

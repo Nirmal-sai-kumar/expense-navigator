@@ -1,0 +1,103 @@
+/* General Styles */
+nav h1 {
+  
+    padding: 0px;
+    text-align: left;
+    flex-grow: 1; /* Ensures h1 takes up the leftmost space */
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    background-image: url('https://repository-images.githubusercontent.com/681667857/1c91d035-782a-4c11-8984-10eed278e3dc'); /* Replace with your image path */
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    height: 100vh; 
+    margin: 0;
+}
+
+/* Navigation */
+
+
+nav {
+    background-color: #333;
+    padding: 0px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-button {
+    background-color: rgb(107, 9, 194); /* Button color */
+    color: white; /* Text color */
+    text-decoration: none;
+    padding: 5px 10px; /* Increased padding for a rectangular look */
+    margin: 0 5px;
+    border-radius: 5px; /* Slightly rounded edges */
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+    border: none;
+    display: inline-block;
+    text-align: center;
+    width: 90px; /* Fixed width for consistent rectangular shape */
+    height: 32px; /* Fixed height */
+    line-height: 32px; /* Centers text vertically */
+    text-align: center;
+    align-content: center;
+}
+
+.nav-button:hover {
+    background-color: rgb(50, 5, 120); /* Darker shade on hover */
+}
+
+
+/* Forms */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 20px auto;
+}
+
+input, button {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+}
+
+/* Buttons */
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background: #007bff;
+    color: white;
+}

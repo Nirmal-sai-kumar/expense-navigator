@@ -1,10 +1,10 @@
 <?php
 session_start();
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 
 // Redirect if not admin
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../public/login.php");
     exit();
 }
 

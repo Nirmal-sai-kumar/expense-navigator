@@ -1,10 +1,10 @@
 <?php
 session_start();
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 
 // Redirect if not admin
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../public/login.php");
     exit();
 }
 
@@ -195,7 +195,7 @@ if (!$expenses) {
                 <td><?= htmlspecialchars($user['email']) ?></td>
                 <td><?= htmlspecialchars($user['role']) ?></td>
                 <td>
-                    <a href="edit_user.php?user_id=<?= urlencode($user['id']) ?>" class="btn">Edit</a>
+                    <a href="../admin/edit_user.php?user_id=<?= urlencode($user['id']) ?>" class="btn">Edit</a>
                     <a href="?delete_user=<?= urlencode($user['id']) ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
                 </td>
             </tr>
@@ -224,7 +224,7 @@ if (!$expenses) {
                 <td><?= htmlspecialchars($expense['source']) ?></td>
                 <td>₹<?= number_format($expense['amount'], 2) ?></td>
                 <td>
-                    <a href="edit_expense.php?expense_id=<?= urlencode($expense['id']) ?>" class="btn">Edit</a>
+                    <a href="../admin/edit_expense.php?expense_id=<?= urlencode($expense['id']) ?>" class="btn">Edit</a>
                     <a href="?delete_expense=<?= urlencode($expense['id']) ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this expense?');">Delete</a>
                 </td>
             </tr>
@@ -234,7 +234,7 @@ if (!$expenses) {
         <p>No expenses found.</p>
     <?php endif; ?>
 
-    <a href="logout.php" class="logout">Logout</a>
+    <a href="../public/logout.php" class="logout">Logout</a>
 </div>
 
 </body>

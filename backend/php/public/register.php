@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check all required fields including role
@@ -30,11 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $usernameResult = $usernameCheck->get_result();
 
         if ($emailResult->num_rows > 0 && $usernameResult->num_rows > 0) {
-            echo "<script>alert('Email and Username already exist! Please use different details.'); window.location.href='register.html';</script>";
+            echo "<script>alert('Email and Username already exist! Please use different details.'); window.location.href='../../frontend/public/register.html';</script>";
         } elseif ($emailResult->num_rows > 0) {
-            echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='register.html';</script>";
+            echo "<script>alert('Email already exists! Please use a different email.'); window.location.href='../../frontend/public/register.html';</script>";
         } elseif ($usernameResult->num_rows > 0) {
-            echo "<script>alert('Username already exists! Please use a different username.'); window.location.href='register.html';</script>";
+            echo "<script>alert('Username already exists! Please use a different username.'); window.location.href='../../frontend/public/register.html';</script>";
         } else {
             // Insert user into DB
             $stmt = $conn->prepare("INSERT INTO users 
@@ -43,9 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_param("ssssssss", $first_name, $last_name, $gender, $email, $phone, $username, $password, $role);
 
             if ($stmt->execute()) {
-                echo "<script>alert('Registration successful!'); window.location.href='login.html';</script>";
+                echo "<script>alert('Registration successful!'); window.location.href='../../frontend/public/login.html';</script>";
             } else {
-                echo "<script>alert('An error occurred. Please try again.'); window.location.href='register.html';</script>";
+                echo "<script>alert('An error occurred. Please try again.'); window.location.href='../../frontend/public/register.html';</script>";
             }
             $stmt->close();
         }

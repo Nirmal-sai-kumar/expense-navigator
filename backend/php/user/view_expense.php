@@ -1,18 +1,17 @@
 <?php
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Please log in first!'); window.location.href='login.html';</script>";
+    echo "<script>alert('Please log in first!'); window.location.href='../../frontend/public/login.html';</script>";
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
 
-// Ensure the user_id column exists
+// Ensure user_id column exists in expenses
 $sql_check = "SHOW COLUMNS FROM expenses LIKE 'user_id'";
 $result_check = $conn->query($sql_check);
-
 if ($result_check->num_rows === 0) {
     $alter_query = "ALTER TABLE expenses ADD COLUMN user_id INT NOT NULL";
     $conn->query($alter_query);
@@ -24,35 +23,22 @@ if (isset($_GET['delete_id'])) {
     $stmt = $conn->prepare("DELETE FROM expenses WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ii", $delete_id, $user_id);
     $stmt->execute();
-    
-    if ($stmt->affected_rows > 0) {
-        echo "<script>alert('Expense deleted successfully!'); window.location.href='edit_expense1.php';</script>";
-    } else {
-        echo "<script>alert('Failed to delete expense!'); window.location.href='edit_expense1.php';</script>";
-    }
-    
-    $stmt->close();
+    echo "<script>alert('Expense deleted successfully!'); window.location.href='edit_expense1.php';</script>";
     exit();
 }
 
-// Handle Update Action
+// Handle Update Action (Form Submission)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_id'])) {
     $update_id = intval($_POST['update_id']);
     $expense_date = $_POST['expense_date'];
     $source = $_POST['source'];
     $amount = $_POST['amount'];
 
-    // use `date` column instead of `expense_date`
     $stmt = $conn->prepare("UPDATE expenses SET date = ?, source = ?, amount = ? WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ssdii", $expense_date, $source, $amount, $update_id, $user_id);
+    $stmt->execute();
     
-    if ($stmt->execute()) {
-        echo "<script>alert('Expense updated successfully!'); window.location.href='edit_expense1.php';</script>";
-    } else {
-        echo "<script>alert('Failed to update expense!'); window.location.href='edit_expense1.php';</script>";
-    }
-    
-    $stmt->close();
+    echo "<script>alert('Expense updated successfully!'); window.location.href='edit_expense1.php';</script>";
     exit();
 }
 
@@ -63,7 +49,7 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Fetch data for editing
+// Fetch data to edit if edit_id is set
 $edit_data = null;
 if (isset($_GET['edit_id'])) {
     $edit_id = intval($_GET['edit_id']);
@@ -173,8 +159,8 @@ if (isset($_GET['edit_id'])) {
 
 <h2>Manage Your Expenses</h2>
 
-<!-- Edit Form -->
 <?php if ($edit_data): ?>
+    <!-- Edit Form -->
     <form method="POST" action="edit_expense1.php">
         <input type="hidden" name="update_id" value="<?= $edit_data['id'] ?>">
         
@@ -192,7 +178,6 @@ if (isset($_GET['edit_id'])) {
     </form>
 <?php endif; ?>
 
-<!-- Display Expense Records -->
 <?php if ($result->num_rows > 0): ?>
     <table>
         <thead>
@@ -221,8 +206,7 @@ if (isset($_GET['edit_id'])) {
     <p style="text-align: center; color: red;">No expense records found!</p>
 <?php endif; ?>
 
-<!-- Go Back to Dashboard Link -->
-<a href="dashboard.html" class="back-link"> Go Back to Dashboard</a>
+<a href="../../frontend/public/dashboard.html" class="back-link">Go Back to Dashboard</a>
 
 <?php
 $stmt->close();

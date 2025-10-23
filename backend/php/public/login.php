@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db.php';
+include __DIR__ . '/../config/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
@@ -28,25 +28,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($role === 'admin') {
                 $_SESSION['admin'] = true;
 
-                // Option 1: Use JavaScript alert + redirect
-                echo "<script>alert('Admin Login Successful!'); window.location.href='admin_dashboard.php';</script>";
-
-                // Option 2: Pure PHP redirect (comment out the above if you prefer this):
-                // header("Location: admin_dashboard.php");
-                // exit();
+                echo "<script>alert('Admin Login Successful!'); window.location.href='../admin/admin_dashboard.php';</script>";
             } else {
                 // Normal user
-                echo "<script>alert('User Login Successful!'); window.location.href='dashboard.html';</script>";
-                
-                // Or pure PHP redirect:
-                // header("Location: dashboard.html");
-                // exit();
+                echo "<script>alert('User Login Successful!'); window.location.href='../../frontend/public/dashboard.html';</script>";
             }
         } else {
-            echo "<script>alert('Invalid Password! Please try again.'); window.location.href='login.html';</script>";
+            echo "<script>alert('Invalid Password! Please try again.'); window.location.href='../../frontend/public/login.html';</script>";
         }
     } else {
-        echo "<script>alert('Invalid Username or Role!'); window.location.href='login.html';</script>";
+        echo "<script>alert('Invalid Username or Role!'); window.location.href='../../frontend/public/login.html';</script>";
     }
 
     $stmt->close();
