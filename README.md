@@ -1,248 +1,436 @@
-# Expense Navigator
+# 💰 ExpenseNavigator
 
-Expense Navigator is a comprehensive web-based expense management system that streamlines the process of tracking, managing, and analyzing personal and professional expenses. It offers a secure and user-friendly interface for both end users and administrators.
+> A modern expense tracking web application built with Node.js, Express.js, and MongoDB Atlas
 
-## Table of Contents
+![Node.js](https://img.shields.io/badge/Node.js-20.x-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Running the Application](#running-the-application)
-- [Usage](#usage)
-- [Testing](#testing)
-- [Troubleshooting](#troubleshooting)
+---
 
+## 📖 What is ExpenseNavigator?
 
-## Introduction
+ExpenseNavigator is a **cloud-based expense management system** that helps you track your income and expenses easily. It features:
 
-Expense Navigator was designed to address the challenges of manual expense tracking. By automating the data entry process and providing intuitive dashboards for both users and administrators, the application simplifies financial management. This project is part of a project-based learning initiative undertaken by Tavva Vinay and Teeti Nirmal Sai Kumar, under the guidance of Dr. B. Srinivas at MVGR College of Engineering.
+✅ **User Authentication** - Secure login and registration  
+✅ **Expense Tracking** - Add, edit, and delete expenses  
+✅ **Admin Dashboard** - Manage all users and expenses  
+✅ **Cloud Storage** - All data stored in MongoDB Atlas  
+✅ **Role-Based Access** - Separate User and Admin dashboards  
 
-## Features
+---
 
-- **User Registration & Login:** Secure sign-up and login functionalities.
-- **Expense Management:** Add, edit, and delete expense entries.
-- **Dashboard Views:** Separate dashboards for users and administrators.
-- **Real-time Reporting:** Graphical and tabular reports for expense tracking.
-- **Multi-user Support:** Allows collaboration with role-based access control.
-- **Data Security:** Secure authentication and session management using PHP and MySQL.
+## 🛠️ Technology Stack
 
-## Technologies Used
+| Technology | Purpose |
+|------------|---------|
+| **Node.js 20.x** | Backend runtime |
+| **Express.js** | Web framework |
+| **MongoDB Atlas** | Cloud database |
+| **JWT** | Authentication tokens |
+| **bcryptjs** | Password hashing |
+| **Vanilla JavaScript** | Frontend |
+| **HTML/CSS** | UI design |
 
-- **Frontend:** HTML, CSS, JavaScript
-- **Backend:** PHP (Version 7.4 or higher recommended)
-- **Database:** MySQL (Version 5.7 or higher)
-- **Server Options:** 
-  - PHP's built-in development server
-  - XAMPP/WAMP/MAMP (Apache + MySQL)
+---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-expense-navigator/
-├── backend/                     # Backend code
-│   └── php/                     # PHP files
-│       ├── admin/               # Admin-specific functionality
-│       │   ├── admin_dashboard.php
-│       │   ├── edit_expense.php
-│       │   └── edit_user.php
-│       ├── config/              # Configuration files
-│       │   └── db.php           # Database connection settings
-│       ├── public/              # Public access PHP files
-│       │   ├── db_test.php      # Database connection test
-│       │   ├── login.php        # Login handler
-│       │   ├── logout.php       # Logout handler
-│       │   └── register.php     # Registration handler
-│       └── user/                # User-specific functionality
-│           ├── edit_expense1.php
-│           ├── expense.php
-│           └── view_expense.php
-├── frontend/                    # Frontend code
-│   ├── assets/                  # Static resources
-│   │   ├── css/                 # Stylesheets
-│   │   │   ├── dashboard.css
-│   │   │   ├── login.css
-│   │   │   ├── register.css
-│   │   │   └── styles.css
-│   │   ├── images/              # Image files
-│   │   └── js/                  # JavaScript files
-│   │       └── script.js
-│   └── public/                  # HTML entry points
-│       ├── dashboard.html
-│       ├── index.html
-│       ├── login.html
-│       └── register.html
-├── sql/                         # SQL scripts
-│   └── expense_navigator.sql    # Database schema and sample data
-├── router.php                   # Router for PHP's built-in server
-├── run-server.bat               # Batch file to start the server (Windows)
-├── start_server.ps1             # PowerShell script to start the server
-└── README.md                    # Project documentation
+ExpenseNavigator/
+│
+├── backend/                    # Backend server code
+│   ├── server.js              # Main Express server
+│   │
+│   └── api/                   # API endpoints
+│       ├── _lib/              # Shared libraries
+│       │   ├── db.js         # MongoDB connection
+│       │   ├── auth.js       # JWT & password utilities
+│       │   └── middleware.js # Auth middleware
+│       │
+│       ├── auth/              # Authentication endpoints
+│       │   ├── login.js      # POST /api/auth/login
+│       │   ├── logout.js     # POST /api/auth/logout
+│       │   └── register.js   # POST /api/auth/register
+│       │
+│       ├── expenses/          # Expense endpoints
+│       │   ├── index.js      # GET/POST /api/expenses
+│       │   └── [id].js       # GET/PUT/DELETE /api/expenses/:id
+│       │
+│       └── admin/             # Admin-only endpoints
+│           ├── users/
+│           │   ├── index.js  # GET /api/admin/users
+│           │   └── [id].js   # GET/PUT/DELETE /api/admin/users/:id
+│           │
+│           └── expenses/
+│               ├── index.js  # GET /api/admin/expenses
+│               └── [id].js   # GET/PUT/DELETE /api/admin/expenses/:id
+│
+├── frontend/                   # Frontend code
+│   ├── public/                # HTML pages
+│   │   ├── index.html        # Home page
+│   │   ├── login.html        # Login page
+│   │   ├── register.html     # Registration page
+│   │   ├── dashboard.html    # User dashboard
+│   │   ├── edit-expense.html # Edit expense (user)
+│   │   │
+│   │   └── admin/            # Admin pages
+│   │       ├── dashboard.html      # Admin dashboard
+│   │       ├── edit-user.html      # Edit user
+│   │       └── edit-expense.html   # Edit expense (admin)
+│   │
+│   └── assets/               # Static assets
+│       ├── css/              # Stylesheets
+│       │   ├── login.css
+│       │   ├── register.css
+│       │   └── dashboard.css
+│       │
+│       └── js/               # JavaScript files
+│           ├── config.js
+│           ├── user-dashboard.js
+│           └── admin-dashboard.js
+│
+├── .env                       # Environment variables (DO NOT PUSH)
+├── .gitignore                # Git ignore rules
+├── package.json              # Project dependencies
+├── vercel.json               # Vercel deployment config
+├── START_SERVER.bat          # Local server startup script
+└── README.md                 # This file
 ```
 
-## Prerequisites
+---
 
-Before installing and running Expense Navigator, ensure you have the following prerequisites installed on your system:
+## 🚀 Quick Start Guide
 
-1. **PHP** (Version 7.4 or higher)
-   - For Windows: Download from [PHP for Windows](https://windows.php.net/download/)
-   - For macOS: `brew install php` (using Homebrew)
-   - For Linux: `sudo apt install php` (Ubuntu/Debian) or `sudo dnf install php` (Fedora)
+### **Prerequisites**
 
-2. **MySQL** (Version 5.7 or higher)
-   - For Windows: Download MySQL Community Server from [MySQL Downloads](https://dev.mysql.com/downloads/mysql/)
-   - For macOS: `brew install mysql` (using Homebrew)
-   - For Linux: `sudo apt install mysql-server` (Ubuntu/Debian) or `sudo dnf install mysql-server` (Fedora)
+Before you begin, ensure you have:
 
-3. **Git** (optional, for cloning the repository)
+- ✅ **Node.js 20.x** installed ([Download here](https://nodejs.org))
+- ✅ **MongoDB Atlas account** ([Sign up free](https://www.mongodb.com/cloud/atlas))
+- ✅ **Git** installed
+- ✅ **Code editor** (VS Code recommended)
 
-## Installation
+### **Step 1: Clone the Repository**
 
-Follow these steps to set up Expense Navigator on your local system:
-
-1. **Clone or download the repository:**
-   ```bash
-   git clone https://github.com/Nirmal-sai-kumar/expense-navigator.git
-   cd expense-navigator
-   ```
-   Or download and extract the ZIP file from the repository.
-
-2. **Database Setup:**
-   - Start your MySQL server (make sure it's running on port 3306 or 3307)
-   - Create a new database:
-     ```sql
-     CREATE DATABASE expense_navigator;
-     ```
-   - Import the database schema:
-     ```bash
-     # Using command line
-     mysql -u root -p expense_navigator < sql/expense_navigator.sql
-     
-     # Or using a GUI tool like phpMyAdmin, MySQL Workbench, etc.
-     ```
-
-3. **Configure Database Connection:**
-   - Open `backend/php/config/db.php`
-   - Update the database connection settings:
-     ```php
-     $host = '127.0.0.1';       // Use 'localhost' or '127.0.0.1'
-     $port = 3307;              // Default is 3306, change if needed
-     $username = 'root';        // Your MySQL username
-     $password = 'your_password'; // Your MySQL password
-     $database = 'expense_navigator';
+```bash
+git clone https://github.com/YOUR_USERNAME/ExpenseNavigator.git
+cd ExpenseNavigator
 ```
 
-## Running the Application
+### **Step 2: Install Dependencies**
 
-You can run Expense Navigator using one of the following methods:
+```bash
+npm install
+```
 
-### Method 1: Using PHP's Built-in Web Server (Recommended for Development)
+### **Step 3: Configure Environment Variables**
 
-1. **Open a terminal/command prompt** and navigate to your project directory:
-   ```bash
-   cd path/to/expense-navigator
-   ```
+Create a `.env` file in the root directory:
 
-2. **Start the PHP development server**:
-   - Using the command line:
-     ```bash
-     # Windows
-     php -S localhost:8000
-     
-     # macOS/Linux
-     php -S localhost:8000
-     ```
-   - Or run the provided batch file (Windows):
-     ```bash
-     run-server.bat
-     ```
-   - Or run the PowerShell script:
-     ```powershell
-     .\start_server.ps1
-     ```
+```env
+# MongoDB Atlas Connection
+MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster.mongodb.net/expense_navigator?retryWrites=true&w=majority
 
-3. **Access the application** in your web browser:
-   - Main page: [http://localhost:8000/frontend/public/index.html](http://localhost:8000/frontend/public/index.html)
-   - Login page: [http://localhost:8000/frontend/public/login.html](http://localhost:8000/frontend/public/login.html)
-   - Registration page: [http://localhost:8000/frontend/public/register.html](http://localhost:8000/frontend/public/register.html)
-   - Test database connection: [http://localhost:8000/backend/php/public/db_test.php](http://localhost:8000/backend/php/public/db_test.php)
+# JWT Secret (change this!)
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 
-### Method 2: Using XAMPP/WAMP/MAMP
+# Server Configuration
+PORT=5001
+NODE_ENV=development
+```
 
-1. **Install XAMPP, WAMP, or MAMP** based on your operating system.
+**Important:** Replace `YOUR_USERNAME` and `YOUR_PASSWORD` with your MongoDB Atlas credentials.
 
-2. **Copy the project files** to your web server directory:
-   - XAMPP: `C:\xampp\htdocs\expense-navigator\` (Windows)
-   - WAMP: `C:\wamp64\www\expense-navigator\` (Windows)
-   - MAMP: `/Applications/MAMP/htdocs/expense-navigator/` (macOS)
-   - LAMP: `/var/www/html/expense-navigator/` (Linux)
+### **Step 4: Set Up MongoDB Atlas**
 
-3. **Start Apache and MySQL services** from the control panel.
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a new cluster (free tier available)
+3. Create a database user with username and password
+4. Add your IP address to Network Access (or use `0.0.0.0/0` for testing)
+5. Copy your connection string to `.env` file
 
-4. **Access the application** in your web browser:
-   - Main page: [http://localhost/expense-navigator/frontend/public/index.html](http://localhost/expense-navigator/frontend/public/index.html)
-   - Login page: [http://localhost/expense-navigator/frontend/public/login.html](http://localhost/expense-navigator/frontend/public/login.html)
-   - Registration page: [http://localhost/expense-navigator/frontend/public/register.html](http://localhost/expense-navigator/frontend/public/register.html)
-   - Test database connection: [http://localhost/expense-navigator/backend/php/public/db_test.php](http://localhost/expense-navigator/backend/php/public/db_test.php)
+### **Step 5: Initialize Database**
 
-## Usage
+```bash
+# Start the server
+node backend/server.js
+```
 
-1. **Register a new user** by visiting the registration page.
-2. **Log in** with your newly created account.
-3. **Add expenses** through the user dashboard.
-4. **View and manage expenses** in the user interface.
+Then visit: `http://localhost:5001/setup`
 
-### Admin Interface
+Click "Initialize Database" to create:
+- ✅ Admin user: `admin` / `admin123`
+- ✅ Database collections
 
-Admins can log in to view, manage, and validate all users' expense data through a dedicated dashboard.
+### **Step 6: Access the Application**
 
-**For testing purposes, use the following admin credentials:**
+Open your browser and navigate to:
 
-- **Username:** admin
-- **Password:** admin
+- 🏠 **Home:** http://localhost:5001
+- 🔐 **Login:** http://localhost:5001/login
+- 📝 **Register:** http://localhost:5001/register
 
-## Testing
+**Default Admin Login:**
+- Username: `admin`
+- Password: `admin123`
+- Role: `Admin`
 
-To verify your setup is working correctly:
+---
 
-1. **Test the database connection** by visiting the db_test.php page:
-   - PHP Built-in Server: [http://localhost:8000/backend/php/public/db_test.php](http://localhost:8000/backend/php/public/db_test.php)
-   - XAMPP/WAMP/MAMP: [http://localhost/expense-navigator/backend/php/public/db_test.php](http://localhost/expense-navigator/backend/php/public/db_test.php)
+## 📋 API Endpoints
 
-2. **Try registering a new user** and logging in.
+### **Authentication**
 
-3. **Add a test expense** to verify that database operations are working correctly.
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/auth/register` | Register new user | Public |
+| POST | `/api/auth/login` | User login | Public |
+| POST | `/api/auth/logout` | User logout | Authenticated |
 
-4. **Test admin functionalities** using the admin credentials.
+### **Expenses (User)**
 
-## Troubleshooting
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/expenses` | Get user's expenses | User |
+| POST | `/api/expenses` | Create new expense | User |
+| GET | `/api/expenses/:id` | Get expense by ID | User |
+| PUT | `/api/expenses/:id` | Update expense | User |
+| DELETE | `/api/expenses/:id` | Delete expense | User |
 
-If you encounter any issues while setting up or running Expense Navigator, try the following solutions:
+### **Admin - Users**
 
-### Database Connection Issues
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/admin/users` | Get all users | Admin |
+| GET | `/api/admin/users/:id` | Get user by ID | Admin |
+| PUT | `/api/admin/users/:id` | Update user | Admin |
+| DELETE | `/api/admin/users/:id` | Delete user | Admin |
 
-1. **Verify MySQL is running** and accessible on the configured port.
-2. **Check database credentials** in `backend/php/config/db.php`.
-3. **Make sure the database exists** and has been properly imported.
-4. **Try connecting with a different client** to verify the MySQL server is working correctly.
+### **Admin - Expenses**
 
-### Page Not Found or Blank Pages
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/admin/expenses` | Get all expenses | Admin |
+| GET | `/api/admin/expenses/:id` | Get expense by ID | Admin |
+| PUT | `/api/admin/expenses/:id` | Update any expense | Admin |
+| DELETE | `/api/admin/expenses/:id` | Delete any expense | Admin |
 
-1. **Enable PHP error reporting** by adding these lines at the top of PHP files:
-   ```php
-   ini_set('display_errors', 1);
-   ini_set('display_startup_errors', 1);
-   error_reporting(E_ALL);
-   ```
+---
 
-2. **Check file paths** in include statements and HTML links.
-3. **Verify the server is running** and accessible at the expected URL.
-4. **Clear browser cache** or try in incognito/private browsing mode.
+## 🌐 Deploy to Vercel
 
-### Form Submission Problems
+### **Option 1: Deploy via Vercel CLI**
 
-1. **Check form action URLs** to ensure they're pointing to the correct handlers.
-2. **Inspect browser console** for JavaScript errors.
-3. **Verify POST/GET variables** are being received by form handlers.
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy
+vercel
+
+# Deploy to production
+vercel --prod
+```
+
+### **Option 2: Deploy via GitHub**
+
+1. Push your code to GitHub
+2. Go to [Vercel Dashboard](https://vercel.com)
+3. Click "New Project"
+4. Import your GitHub repository
+5. Add environment variables:
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+   - `NODE_ENV=production`
+6. Click "Deploy"
+
+Your app will be live at: `https://your-project.vercel.app`
+
+---
+
+## 🎨 Features Overview
+
+### **For Users:**
+- ✅ Register and login securely
+- ✅ Add new expenses with source, amount, and date
+- ✅ View all your expenses in a dashboard
+- ✅ Edit your expenses
+- ✅ Delete expenses you no longer need
+- ✅ Track total spending
+
+### **For Admins:**
+- ✅ All user features PLUS:
+- ✅ View all registered users
+- ✅ Edit user information
+- ✅ Delete users
+- ✅ View ALL expenses from ALL users
+- ✅ Edit any user's expenses
+- ✅ Delete any expense
+- ✅ Track system-wide statistics
+
+---
+
+## 🗂️ Database Schema
+
+### **Users Collection**
+
+```javascript
+{
+  _id: ObjectId,
+  username: String (unique, lowercase),
+  email: String (unique),
+  password: String (hashed with bcrypt),
+  firstName: String,
+  lastName: String,
+  role: String (enum: ['user', 'admin']),
+  gender: String,
+  phone: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### **Expenses Collection**
+
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (reference to Users),
+  source: String,
+  amount: Number,
+  date: Date,
+  description: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### **MongoDB Connection Error**
+
+**Problem:** "Server error occurred during login"
+
+**Solution:**
+1. Check MongoDB Atlas is running
+2. Verify connection string in `.env`
+3. Ensure IP is whitelisted in MongoDB Atlas Network Access
+4. Use Node.js 20.x (not 22.x)
+
+### **Port Already in Use**
+
+**Problem:** "EADDRINUSE: address already in use :::5001"
+
+**Solution:**
+```bash
+# Windows
+netstat -ano | findstr :5001
+taskkill /PID <PID> /F
+
+# Then restart
+node backend/server.js
+```
+
+### **Edit Buttons Not Working**
+
+**Problem:** Clicking Edit redirects to login
+
+**Solution:**
+1. Clear browser localStorage
+2. Login again
+3. Check browser console for errors
+
+---
+
+## 📝 What are .bat Files?
+
+The `.bat` files in this project are **Windows batch scripts** for local development:
+
+### **START_SERVER.bat**
+- **Purpose:** Starts the Node.js server easily
+- **What it does:**
+  1. Checks your Node.js version
+  2. Warns if using incompatible version (Node.js 22)
+  3. Starts the Express server
+  4. Opens server at http://localhost:5001
+- **Usage:** Double-click to run
+
+**Note:** `.bat` files are in `.gitignore` - they won't be pushed to GitHub because:
+- ❌ They only work on Windows
+- ❌ They contain local development settings
+- ❌ Deployment platforms (Vercel) don't need them
+
+---
+
+## 🚫 Files NOT Pushed to GitHub
+
+Thanks to `.gitignore`, these files stay local:
+
+```
+✅ .env                  # Your MongoDB password is SAFE
+✅ node_modules/         # Too large (100MB+)
+✅ *.bat                 # Windows-only scripts
+✅ *.json (except package.json & vercel.json)
+✅ .vercel/              # Deployment artifacts
+✅ *.log                 # Error logs
+✅ temp files            # Temporary data
+```
+
+**Only these get pushed:**
+- ✅ Source code (backend/, frontend/)
+- ✅ package.json (dependencies)
+- ✅ vercel.json (deployment config)
+- ✅ README.md (documentation)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+**Nirmal Sai Kumar**
+- GitHub: [@Nirmal-sai-kumar](https://github.com/Nirmal-sai-kumar)
+- Repository: [ExpenseNavigator](https://github.com/Nirmal-sai-kumar/expense-navigator)
+
+---
+
+## 🙏 Acknowledgments
+
+- MongoDB Atlas for cloud database
+- Vercel for hosting platform
+- Express.js framework
+- JWT for secure authentication
+
+---
+
+## 📞 Support
+
+Having issues? Check the [Troubleshooting](#troubleshooting) section above.
+
+Still stuck? Open an issue on GitHub.
+
+---
+
+**Made with ❤️ by Nirmal Sai Kumar**

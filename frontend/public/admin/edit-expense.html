@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense - Admin - Expense Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            color: #3498db;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            flex: 1;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .back-btn {
+            flex: 1;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .info-text {
+            background-color: #e7f3ff;
+            color: #2980b9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Expense (Admin)</h2>
+
+        <div id="loading" class="loading">Loading expense data...</div>
+
+        <form id="editExpenseForm" style="display: none;" onsubmit="return updateExpense(event);">
+            <div class="info-text">
+                <strong>User:</strong> <span id="expense-user">Loading...</span>
+            </div>
+
+            <div class="form-group">
+                <label for="expense-date">Date (dd-mm-yyyy):</label>
+                <input type="date" id="expense-date" name="expense_date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="source">Source:</label>
+                <input type="text" id="source" name="source" placeholder="Enter expense source" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="expense-amount">Amount (₹):</label>
+                <input type="number" id="expense-amount" name="expense_amount" step="0.01" placeholder="Enter amount" required>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="submit-btn">Update Expense</button>
+                <a href="/admin/dashboard" class="back-btn">Back to Dashboard</a>
+            </div>
+            
+            <div id="expense-message"></div>
+        </form>
+    </div>
+
+    <script>
+        let expenseId = null;
+
+        // Check authentication and load expense data on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔍 Edit Expense Page (Admin) - Checking authentication...');
+            
+            // Check if user is logged in
+            const userDataString = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            
+            console.log('localStorage contents:', {
+                user: userDataString,
+                token: token
+            });
+            
+            if (!userDataString || !token) {
+                console.log('❌ Not authenticated - No user data or token found');
+                alert('You are not logged in. Please login first.');
+                window.location.href = '/login';
+                return;
+            }
+
+            // Verify admin role
+            let user;
+            try {
+                user = JSON.parse(userDataString);
+                console.log('✅ Parsed user data:', user);
+            } catch (error) {
+                console.error('❌ Failed to parse user data:', error);
+                alert('Session data corrupted. Please login again.');
+                localStorage.clear();
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (!user || !user.userId) {
+                console.log('❌ Invalid user data - missing userId');
+                alert('Invalid session. Please login again.');
+                localStorage.clear();
+                window.location.href = '/login';
+                return;
+            }
+            
+            if (user.role !== 'admin') {
+                console.log('❌ Access denied - User role is:', user.role);
+                alert('Access denied. This page is for administrators only.');
+                window.location.href = user.role === 'user' ? '/dashboard' : '/login';
+                return;
+            }
+            
+            console.log('✅ Authentication successful for admin:', user.username);
+
+            // Get expense ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            expenseId = urlParams.get('id');
+            
+            console.log('Expense ID from URL:', expenseId);
+
+            if (!expenseId) {
+                console.log('❌ No expense ID provided in URL');
+                alert('No expense ID provided');
+                window.location.href = '/admin/dashboard';
+                return;
+            }
+
+            // Load expense data
+            await loadExpenseData();
+        });
+
+        // Load expense data
+        async function loadExpenseData() {
+            const loadingDiv = document.getElementById('loading');
+            const formDiv = document.getElementById('editExpenseForm');
+
+            try {
+                const response = await fetch(`/api/admin/expenses/${expenseId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const expense = data.data;
+                    
+                    // Convert date to YYYY-MM-DD format for input
+                    const date = new Date(expense.date);
+                    const formattedDate = date.toISOString().split('T')[0];
+                    
+                    // Fill form with expense data
+                    document.getElementById('expense-date').value = formattedDate;
+                    document.getElementById('source').value = expense.source || '';
+                    document.getElementById('expense-amount').value = expense.amount || '';
+                    document.getElementById('expense-user').textContent = expense.username || 'Unknown User';
+
+                    // Show form, hide loading
+                    loadingDiv.style.display = 'none';
+                    formDiv.style.display = 'block';
+                } else {
+                    alert(data.message || 'Failed to load expense data');
+                    window.location.href = '/admin/dashboard';
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                window.location.href = '/admin/dashboard';
+            }
+        }
+
+        // Update expense function
+        async function updateExpense(event) {
+            event.preventDefault();
+
+            const messageDiv = document.getElementById('expense-message');
+            messageDiv.innerHTML = '<p class="message" style="background: #d4edda; color: #155724;">Updating expense...</p>';
+
+            const formData = {
+                source: document.getElementById('source').value,
+                amount: parseFloat(document.getElementById('expense-amount').value),
+                date: document.getElementById('expense-date').value
+            };
+
+            try {
+                const response = await fetch(`/api/admin/expenses/${expenseId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    messageDiv.innerHTML = '<p class="message" style="background: #d4edda; color: #155724;">✓ Expense updated successfully!</p>';
+                    
+                    console.log('✅ Expense updated successfully, redirecting to admin dashboard');
+                    
+                    // Redirect to dashboard after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard';
+                    }, 1500);
+                } else {
+                    messageDiv.innerHTML = `<p class="message" style="background: #f8d7da; color: #721c24;">✗ ${data.message || 'Failed to update expense'}</p>`;
+                }
+            } catch (error) {
+                messageDiv.innerHTML = `<p class="message" style="background: #f8d7da; color: #721c24;">✗ Error: ${error.message}</p>`;
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>

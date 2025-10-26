@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h2>Login</h2>
-        <form action="../../backend/php/public/login.php" method="POST">
+        <form id="loginForm">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
@@ -23,9 +23,82 @@
             </select>
 
             <button type="submit">Login</button>
+            <div id="message" style="margin-top: 10px; color: red;"></div>
         </form>
         <p>New user? <a href="register.html">Register here</a></p>
         <a href="index.html" style="text-decoration: none; color: #882140; font-size: 16px;">Go Back to Home page</a>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = 'Logging in...';
+            messageDiv.style.color = 'blue';
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                console.log('Login response:', data); // Debug log
+                
+                if (data.success) {
+                    const userRole = data.data?.role || 'user';
+                    console.log('✅ Login successful!');
+                    console.log('User role:', userRole);
+                    console.log('User data:', data.data);
+                    
+                    messageDiv.textContent = `✅ Login successful as ${userRole.toUpperCase()}! Redirecting...`;
+                    messageDiv.style.color = 'green';
+                    
+                    // Store user data in localStorage with complete information
+                    const userData = {
+                        userId: data.data.userId,
+                        username: data.data.username,
+                        firstName: data.data.firstName,
+                        lastName: data.data.lastName,
+                        email: data.data.email,
+                        role: data.data.role
+                    };
+                    
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    localStorage.setItem('token', data.token || 'logged-in');
+                    
+                    console.log('✅ Stored in localStorage:');
+                    console.log('  - user:', localStorage.getItem('user'));
+                    console.log('  - token:', localStorage.getItem('token'));
+                    console.log('  - Parsed user:', JSON.parse(localStorage.getItem('user')));
+                    
+                    // Redirect based on role
+                    const redirectUrl = userRole === 'admin' ? '/admin/dashboard' : '/dashboard';
+                    console.log('🔄 Redirecting to:', redirectUrl);
+                    
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500);
+                } else {
+                    messageDiv.textContent = data.message || 'Login failed';
+                    messageDiv.style.color = 'red';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error: ' + error.message;
+                messageDiv.style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>
