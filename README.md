@@ -126,21 +126,25 @@ npm install
 
 ### **Step 3: Configure Environment Variables**
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (see `.env.example` for template):
 
 ```env
-# MongoDB Atlas Connection
-MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster.mongodb.net/expense_navigator?retryWrites=true&w=majority
+# MongoDB Atlas Connection (Example - replace with your actual credentials)
+MONGODB_URI=mongodb+srv://example_user:example_password@example-cluster.xxxxx.mongodb.net/expense_navigator?retryWrites=true&w=majority
 
-# JWT Secret (change this!)
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+# JWT Secret (Generate a strong random string)
+JWT_SECRET=replace-this-with-a-long-random-secret-string-for-production
 
 # Server Configuration
 PORT=5001
 NODE_ENV=development
 ```
 
-**Important:** Replace `YOUR_USERNAME` and `YOUR_PASSWORD` with your MongoDB Atlas credentials.
+**⚠️ IMPORTANT:** 
+- Do NOT use the example values above
+- Replace `example_user`, `example_password`, and `example-cluster.xxxxx` with your actual MongoDB Atlas credentials
+- Generate a strong JWT secret for production
+- Never commit your `.env` file to Git
 
 ### **Step 4: Set Up MongoDB Atlas**
 
