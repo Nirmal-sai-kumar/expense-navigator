@@ -21,16 +21,29 @@ async function connectToDatabase() {
         console.log('🔄 Creating new MongoDB connection...');
         console.log('📍 Connection URI:', uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@')); // Hide password
         
-        // Node.js 20 compatible settings - simpler is better
+        // Node.js 20.x compatible settings - proper TLS/SSL configuration for MongoDB Atlas
         const client = new MongoClient(uri, {
+            // TLS/SSL Settings - MongoDB Atlas requires proper TLS
+            tls: true,
+            tlsAllowInvalidCertificates: false,
+            tlsAllowInvalidHostnames: false,
+            
+            // Timeout settings
             serverSelectionTimeoutMS: 30000,
             connectTimeoutMS: 30000,
             socketTimeoutMS: 45000,
+            
+            // Connection pool
             maxPoolSize: 10,
             minPoolSize: 2,
+            maxIdleTimeMS: 60000,
+            
+            // Retry settings
+            retryWrites: true,
+            retryReads: true,
         });
 
-        console.log('� Attempting to connect to MongoDB Atlas...');
+        console.log('🔗 Attempting to connect to MongoDB Atlas...');
         await client.connect();
         console.log('✅ MongoDB Atlas connected successfully!');
         

@@ -1,0 +1,10 @@
+# Files to ignore during Vercel deployment
+.env.local
+.env.*.local
+.git/
+.vscode/
+*.bat
+*.md
+!README.md
+node_modules/
+.vercel/

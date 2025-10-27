@@ -2,7 +2,7 @@
 
 > A modern expense tracking web application built with Node.js, Express.js, and MongoDB Atlas
 
-![Node.js](https://img.shields.io/badge/Node.js-20.x-green)
+![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -24,7 +24,7 @@ ExpenseNavigator is a **cloud-based expense management system** that helps you t
 
 | Technology | Purpose |
 |------------|---------|
-| **Node.js 20.x** | Backend runtime |
+| **Node.js 18.x LTS** | Backend runtime |
 | **Express.js** | Web framework |
 | **MongoDB Atlas** | Cloud database |
 | **JWT** | Authentication tokens |
@@ -106,7 +106,9 @@ ExpenseNavigator/
 
 Before you begin, ensure you have:
 
-- ✅ **Node.js 20.x** installed ([Download here](https://nodejs.org))
+- ✅ **Node.js 18.x LTS** installed ([Download here](https://nodejs.org/en/download/prebuilt-installer))
+  - ⚠️ **IMPORTANT:** Use Node.js **18.20.4 LTS** or higher in the 18.x series
+  - ❌ **DO NOT use Node.js 20.x or 22.x** - they have OpenSSL/TLS incompatibilities with MongoDB Atlas
 - ✅ **MongoDB Atlas account** ([Sign up free](https://www.mongodb.com/cloud/atlas))
 - ✅ **Git** installed
 - ✅ **Code editor** (VS Code recommended)
@@ -118,22 +120,39 @@ git clone https://github.com/YOUR_USERNAME/ExpenseNavigator.git
 cd ExpenseNavigator
 ```
 
-### **Step 2: Install Dependencies**
+### **Step 2: Install Node.js 18.x LTS**
+
+1. Download Node.js 18.20.4 LTS from [nodejs.org](https://nodejs.org/en/download/prebuilt-installer)
+2. Install it (it will replace any existing version)
+3. Verify installation:
+
+```bash
+node --version
+# Should show: v18.20.4 (or another 18.x version)
+```
+
+**Why Node.js 18.x?**
+- Node.js 20.x and 22.x have OpenSSL 3.0 which causes TLS errors with MongoDB Atlas
+- Node.js 18.x LTS uses OpenSSL 1.1.1 which is fully compatible
+
+### **Step 3: Install Dependencies**
 
 ```bash
 npm install
 ```
 
-### **Step 3: Configure Environment Variables**
+This will install all required packages including Express.js, MongoDB driver, JWT, bcryptjs, etc.
 
-Create a `.env` file in the root directory (see `.env.example` for template):
+### **Step 4: Configure Environment Variables**
+
+Create a `.env` file in the root directory:
 
 ```env
-# MongoDB Atlas Connection (Example - replace with your actual credentials)
-MONGODB_URI=mongodb+srv://example_user:example_password@example-cluster.xxxxx.mongodb.net/expense_navigator?retryWrites=true&w=majority
+# MongoDB Atlas Connection
+MONGODB_URI=mongodb+srv://your_username:your_password@your-cluster.xxxxx.mongodb.net/expense_navigator?retryWrites=true&w=majority
 
 # JWT Secret (Generate a strong random string)
-JWT_SECRET=replace-this-with-a-long-random-secret-string-for-production
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 
 # Server Configuration
 PORT=5001
@@ -141,33 +160,66 @@ NODE_ENV=development
 ```
 
 **⚠️ IMPORTANT:** 
-- Do NOT use the example values above
-- Replace `example_user`, `example_password`, and `example-cluster.xxxxx` with your actual MongoDB Atlas credentials
-- Generate a strong JWT secret for production
-- Never commit your `.env` file to Git
+- Replace `your_username`, `your_password`, and `your-cluster.xxxxx` with your actual MongoDB Atlas credentials
+- Generate a strong JWT secret for production (use random string generator)
+- Never commit your `.env` file to Git (it's already in `.gitignore`)
 
-### **Step 4: Set Up MongoDB Atlas**
+### **Step 5: Set Up MongoDB Atlas**
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster (free tier available)
-3. Create a database user with username and password
-4. Add your IP address to Network Access (or use `0.0.0.0/0` for testing)
-5. Copy your connection string to `.env` file
+1. **Create Account & Cluster:**
+   - Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+   - Create a new FREE cluster (M0 tier)
+   - Choose a cloud provider and region
 
-### **Step 5: Initialize Database**
+2. **Create Database User:**
+   - Go to "Database Access" → "Add New Database User"
+   - Choose "Password" authentication
+   - Create username and password
+   - Set privileges to "Atlas Admin" or "Read and Write to any database"
+
+3. **Configure Network Access:**
+   - Go to "Network Access" → "Add IP Address"
+   - For testing: Click "Allow Access from Anywhere" (adds `0.0.0.0/0`)
+   - For production: Add only your server's IP address
+   - ⚠️ This is required or connections will be blocked!
+
+4. **Get Connection String:**
+   - Go to "Database" → Click "Connect" on your cluster
+   - Choose "Connect your application"
+   - Select "Node.js" driver version 4.1 or later
+   - Copy the connection string
+   - Replace `<password>` with your database user password
+   - Replace `myFirstDatabase` with `expense_navigator`
+   - Paste it in your `.env` file as `MONGODB_URI`
+
+**Example Connection String:**
+```
+mongodb+srv://myuser:MyPassword123@cluster1.xxxxx.mongodb.net/expense_navigator?retryWrites=true&w=majority
+```
+
+### **Step 6: Initialize Database**
+
+Start the server:
 
 ```bash
-# Start the server
 node backend/server.js
 ```
 
-Then visit: `http://localhost:5001/setup`
+You should see:
+```
+✅ MongoDB Atlas connected successfully!
+✅ MongoDB ping successful!
+✅ Database selected: expense_navigator
+🚀 Server running on port 5001
+```
 
-Click "Initialize Database" to create:
+Then visit: `http://localhost:5001/setup.html`
+
+Click **"Initialize Database"** to create:
 - ✅ Admin user: `admin` / `admin123`
-- ✅ Database collections
+- ✅ Collections: `users` and `expenses`
 
-### **Step 6: Access the Application**
+### **Step 7: Access the Application**
 
 Open your browser and navigate to:
 
@@ -317,38 +369,231 @@ Your app will be live at: `https://your-project.vercel.app`
 
 ## 🔧 Troubleshooting
 
-### **MongoDB Connection Error**
+### **Issue 1: MongoDB Connection Error**
 
-**Problem:** "Server error occurred during login"
+**Symptoms:**
+- Server hangs when starting
+- Error: "MongoServerSelectionError"
+- Error: "ERR_SSL_TLSV1_ALERT_INTERNAL_ERROR"
+- Login shows "Server error occurred"
 
-**Solution:**
-1. Check MongoDB Atlas is running
-2. Verify connection string in `.env`
-3. Ensure IP is whitelisted in MongoDB Atlas Network Access
-4. Use Node.js 20.x (not 22.x)
+**Solutions:**
 
-### **Port Already in Use**
+1. **Check Node.js Version (MOST COMMON ISSUE)**
+   ```bash
+   node --version
+   ```
+   - ✅ Must be **v18.x.x** (e.g., v18.20.4)
+   - ❌ If you see v20.x.x or v22.x.x, download and install Node.js 18.20.4 LTS
+   - After installing Node 18, delete `node_modules` and run `npm install` again
 
-**Problem:** "EADDRINUSE: address already in use :::5001"
+2. **Verify MongoDB Connection String**
+   - Open `.env` file
+   - Check `MONGODB_URI` is correct
+   - Ensure password doesn't contain special characters (or URL-encode them)
+   - Database name should be `expense_navigator`
 
-**Solution:**
-```bash
-# Windows
+3. **Check MongoDB Atlas Network Access**
+   - Go to MongoDB Atlas → "Network Access"
+   - Ensure your IP is whitelisted
+   - For testing, add `0.0.0.0/0` (allow from anywhere)
+   - Wait 2-3 minutes for changes to apply
+
+4. **Verify Database User Credentials**
+   - Go to MongoDB Atlas → "Database Access"
+   - Ensure user exists and has correct privileges
+   - Password in `.env` must match exactly
+
+5. **Test MongoDB Connection**
+   - Start server: `node backend/server.js`
+   - Look for these messages:
+     ```
+     ✅ MongoDB Atlas connected successfully!
+     ✅ MongoDB ping successful!
+     ```
+   - If you see these, connection is working!
+
+### **Issue 2: Port Already in Use**
+
+**Error:** `EADDRINUSE: address already in use :::5001`
+
+**Solution (Windows PowerShell):**
+```powershell
+# Find process using port 5001
 netstat -ano | findstr :5001
+
+# Kill the process (replace <PID> with actual number)
 taskkill /PID <PID> /F
 
-# Then restart
+# Restart server
 node backend/server.js
 ```
 
-### **Edit Buttons Not Working**
+### **Issue 3: Login Not Working**
 
-**Problem:** Clicking Edit redirects to login
+**Symptoms:**
+- Login redirects back to login page
+- "Invalid credentials" error
+- Dashboard shows blank
+
+**Solutions:**
+
+1. **Initialize Database First**
+   - Visit `http://localhost:5001/setup.html`
+   - Click "Initialize Database"
+   - This creates the admin user
+
+2. **Clear Browser Cache**
+   - Press `Ctrl + Shift + Delete`
+   - Clear "Cookies and other site data"
+   - Clear "Cached images and files"
+   - Close and reopen browser
+
+3. **Check Browser Console**
+   - Press `F12` to open Developer Tools
+   - Go to "Console" tab
+   - Look for errors (e.g., "token is not defined")
+   - Report errors in GitHub Issues
+
+4. **Verify Admin Credentials**
+   - Default username: `admin`
+   - Default password: `admin123`
+   - Case-sensitive!
+
+### **Issue 4: Edit Buttons Not Working**
+
+**Problem:** Clicking "Edit" redirects to login page
+
+**Solutions:**
+
+1. **Clear Local Storage**
+   - Press `F12` → Go to "Application" tab
+   - Click "Local Storage" → `http://localhost:5001`
+   - Click "Clear All"
+   - Login again
+
+2. **Check Token**
+   - In Developer Tools → Application → Local Storage
+   - Verify `token` exists
+   - If missing, logout and login again
+
+### **Issue 5: npm install Fails**
+
+**Error:** `npm ERR! code ENOENT`
+
+**Solutions:**
+
+1. **Check Node.js and npm**
+   ```bash
+   node --version   # Should show v18.x.x
+   npm --version    # Should show 9.x.x or 10.x.x
+   ```
+
+2. **Clear npm Cache**
+   ```bash
+   npm cache clean --force
+   npm install
+   ```
+
+3. **Delete node_modules and Reinstall**
+   ```bash
+   # Remove node_modules folder
+   rm -rf node_modules
+   
+   # Remove package-lock.json
+   rm package-lock.json
+   
+   # Reinstall
+   npm install
+   ```
+
+### **Issue 6: Vercel Deployment Fails**
+
+**Problem:** App works locally but fails on Vercel
+
+**Solutions:**
+
+1. **Check Environment Variables**
+   - Go to Vercel Dashboard → Your Project → Settings → Environment Variables
+   - Add `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`
+   - Redeploy after adding variables
+
+2. **Check Build Logs**
+   - Go to Vercel Dashboard → Deployments
+   - Click on failed deployment
+   - Read build logs for specific errors
+
+3. **Verify vercel.json**
+   - Ensure `vercel.json` exists in root
+   - Should have correct API routes configuration
+
+### **Issue 7: "Cannot GET /api/..." Error**
+
+**Problem:** API endpoints return 404
 
 **Solution:**
-1. Clear browser localStorage
-2. Login again
-3. Check browser console for errors
+- Ensure server is running: `node backend/server.js`
+- Check endpoint path matches exactly
+- Verify file exists in `backend/api/` folder
+
+### **Still Having Issues?**
+
+1. **Check Server Logs**
+   - Look at terminal where `node backend/server.js` is running
+   - Error messages will appear there
+
+2. **Enable Verbose Logging**
+   - Add `console.log()` statements in your code
+   - Check what data is being received/sent
+
+3. **Test with Postman**
+   - Download [Postman](https://www.postman.com/)
+   - Test API endpoints directly
+   - Check if backend works without frontend
+
+4. **Create GitHub Issue**
+   - Go to repository Issues tab
+   - Describe your problem with:
+     - Error message (full text)
+     - Steps to reproduce
+     - Node.js version
+     - Operating system
+     - Screenshots if applicable
+
+---
+
+## 💡 Common Questions
+
+### **Q: Can I use Node.js 20 or 22?**
+**A:** No. Node.js 20+ has OpenSSL 3.0 which causes TLS connection errors with MongoDB Atlas. Stick with Node.js 18.x LTS.
+
+### **Q: Is my data safe in MongoDB Atlas?**
+**A:** Yes! MongoDB Atlas is a professional cloud database with:
+- Automatic backups
+- Encryption at rest and in transit
+- Enterprise-grade security
+- 99.95% uptime SLA
+
+### **Q: Can I use a local MongoDB instead of Atlas?**
+**A:** Yes, but you'll need to:
+1. Install MongoDB Community Server locally
+2. Change `MONGODB_URI` to `mongodb://localhost:27017/expense_navigator`
+3. Update `backend/api/_lib/db.js` connection options (remove TLS settings)
+
+### **Q: How do I change the admin password?**
+**A:** 
+1. Login as admin
+2. Go to Admin Dashboard
+3. Click "Edit" on admin user
+4. Enter new password
+5. Click "Update User"
+
+### **Q: Can multiple people use this app?**
+**A:** Yes! Each user:
+- Creates their own account via Register page
+- Has their own dashboard
+- Can only see/edit their own expenses
+- Admins can see all users and expenses
 
 ---
 

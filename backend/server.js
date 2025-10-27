@@ -1,10 +1,8 @@
 // Express server - Works both locally and on Vercel
 require('dotenv').config();
 
-// Only disable TLS rejection in development (not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+// Node.js 20.x compatible - removed TLS workaround that caused SSL errors
+// MongoDB Atlas uses proper TLS certificates, no need to disable verification
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -38,6 +36,16 @@ app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
 
 // API Routes
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        message: 'ExpenseNavigator API is running',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 
 // Test database connection
 app.all('/api/test-db', require('./api/test-db'));

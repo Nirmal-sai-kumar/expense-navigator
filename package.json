@@ -6,10 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "vercel-dev": "vercel dev",
-    "migrate": "node backend/scripts/migrate-mysql-to-mongo.js",
-    "setup-db": "node backend/scripts/setup-database.js",
-    "test-db": "node backend/scripts/test-connection.js"
+    "vercel-dev": "vercel dev"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,8 +18,10 @@
     "mongodb": "^6.20.0"
   },
   "devDependencies": {
-    "mysql2": "^3.6.5",
     "nodemon": "^3.0.2",
     "vercel": "^33.0.1"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
