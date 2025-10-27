@@ -4,67 +4,228 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Expense Navigator</title>
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
-    <script>
-        // Function to show/hide sections
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll('section');
-            sections.forEach(section => section.style.display = 'none');
-            document.getElementById(sectionId).style.display = 'block';
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        // Navigate to external PHP files for viewing income and expense
-        function navigateTo(url) {
-            window.location.href = url;  // Navigate to the PHP page
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-    </script>
-}</head>
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-buttons button {
+            background-color: #7b2cbf;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #5a1f8f;
+        }
+
+        /* Section Styling */
+        section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        section h3 {
+            color: #7b2cbf;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7b2cbf;
+        }
+
+        .submit-btn {
+            background-color: #7b2cbf;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #5a1f8f;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table thead {
+            background-color: #3498db;
+            color: white;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tbody tr {
+            background-color: white;
+        }
+
+        table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+            transition: opacity 0.3s;
+        }
+
+        .edit-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.8;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
 <body>
     <div class="container">
-        <h2>Dashboard</h2>
+        <h2>User Dashboard</h2>
 
-        <!-- Navigation Menu -->
-        <nav>
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
             <button onclick="showSection('add-expense')">Add Expense</button>
-            <button onclick="navigateTo('../../backend/php/user/view_expense.php')">View Expense</button> <!-- Fixed -->
-            <a href="../../backend/php/public/logout.php">Logout</a>
-        </nav>
+            <button onclick="showSection('view-expense')">View Expense</button>
+            <button onclick="logout()">Logout</button>
+        </div>
 
         <!-- Add Expense Section -->
-        <section id="add-expense" style="display: none;">
+        <section id="add-expense">
             <h3>Add Expense</h3>
-            <form action="../../backend/php/user/expense.php" method="POST" onsubmit="return validateDate();">
-                <label for="expense-date">Date:</label>
-                <!-- Set max attribute to today's date -->
-                <input type="date" 
-                       id="expense-date" 
-                       name="expense_date" 
-                       max="<?php echo date('Y-m-d'); ?>" 
-                       required>
+            <form id="addExpenseForm" onsubmit="return addExpense(event);">
+                <div class="form-group">
+                    <label for="expense-date">Date (dd-mm-yyyy):</label>
+                    <input type="date" id="expense-date" name="expense_date" required>
+                </div>
                 
-                <label for="source">Source:</label>
-                <input type="text" id="source" name="source" required>
+                <div class="form-group">
+                    <label for="source">Source:</label>
+                    <input type="text" id="source" name="source" placeholder="Enter expense source" required>
+                </div>
                 
-                <label for="expense-amount">Amount:</label>
-                <input type="number" id="expense-amount" name="expense_amount" required>
+                <div class="form-group">
+                    <label for="expense-amount">Amount (₹):</label>
+                    <input type="number" id="expense-amount" name="expense_amount" step="0.01" placeholder="Enter amount" required>
+                </div>
                 
-                <button type="submit" name="add_expense">Add Expense</button>
+                <button type="submit" class="submit-btn">Add Expense</button>
+                <div id="expense-message"></div>
             </form>
         </section>
-        
-        <script>
-        function validateDate() {
-            const expenseDate = document.getElementById('expense-date').value;
-            const today = new Date().toISOString().split('T')[0];
-            if (expenseDate > today) {
-                alert("Expense date cannot be in the future!");
-                return false;
-            }
-            return true;
-        }
-        </script>
 
+        <!-- View Expense Section -->
+        <section id="view-expense" style="display: none;">
+            <h3>My Expenses</h3>
+            <div id="expenses-list">
+                <p class="loading">Loading expenses...</p>
+            </div>
+        </section>
     </div>
 
+    <script src="../assets/js/user-dashboard.js"></script>
 </body>
 </html>

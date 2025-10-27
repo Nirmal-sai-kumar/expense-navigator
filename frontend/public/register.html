@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <h2>Register</h2>
-        <form action="../../backend/php/public/register.php" method="POST">
+        <form id="registerForm">
             <label for="first_name">First Name:</label>
             <input type="text" id="first_name" name="first_name" required>
 
@@ -46,9 +46,62 @@
 
             <button type="submit">Register</button>
             <button type="reset">Reset</button>
+            <div id="message" style="margin-top: 10px; color: red;"></div>
         </form>
 
         <p>Already a user? <a href="login.html">Login here</a></p>
     </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = 'Registering...';
+            messageDiv.style.color = 'blue';
+            
+            const formData = {
+                firstName: document.getElementById('first_name').value,
+                lastName: document.getElementById('last_name').value,
+                gender: document.getElementById('gender').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const userRole = data.data?.role || 'user';
+                    messageDiv.textContent = `✅ Registration successful as ${userRole.toUpperCase()}! Please login with your credentials.`;
+                    messageDiv.style.color = 'green';
+                    
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                    
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2500);
+                } else {
+                    messageDiv.textContent = data.message || 'Registration failed';
+                    messageDiv.style.color = 'red';
+                }
+            } catch (error) {
+                messageDiv.textContent = 'Error: ' + error.message;
+                messageDiv.style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>
