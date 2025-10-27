@@ -1,8 +1,10 @@
 // Express server - Works both locally and on Vercel
 require('dotenv').config();
 
-// Fix for Node.js 22 and MongoDB Atlas SSL issue
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+// Only disable TLS rejection in development (not on Vercel)
+if (process.env.NODE_ENV !== 'production') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
