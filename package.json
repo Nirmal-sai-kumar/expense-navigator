@@ -2,14 +2,14 @@
   "name": "expense-navigator",
   "version": "1.0.0",
   "description": "Expense management application with MongoDB Atlas backend",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
     "vercel-dev": "vercel dev",
-    "migrate": "node scripts/migrate-mysql-to-mongo.js",
-    "setup-db": "node scripts/setup-database.js",
-    "test-db": "node test-connection.js"
+    "migrate": "node backend/scripts/migrate-mysql-to-mongo.js",
+    "setup-db": "node backend/scripts/setup-database.js",
+    "test-db": "node backend/scripts/test-connection.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
