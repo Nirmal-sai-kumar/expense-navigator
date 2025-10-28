@@ -2,7 +2,7 @@
 
 > A modern expense tracking web application built with Node.js, Express.js, and MongoDB Atlas
 
-![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
+![Node.js](https://img.shields.io/badge/Node.js-18.x%20|%2020.x-green)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -24,7 +24,7 @@ ExpenseNavigator is a **cloud-based expense management system** that helps you t
 
 | Technology | Purpose |
 |------------|---------|
-| **Node.js 18.x LTS** | Backend runtime |
+| **Node.js 18.x / 20.x** | Backend runtime (18.x local, 20.x Vercel) |
 | **Express.js** | Web framework |
 | **MongoDB Atlas** | Cloud database |
 | **JWT** | Authentication tokens |
@@ -106,9 +106,9 @@ ExpenseNavigator/
 
 Before you begin, ensure you have:
 
-- ✅ **Node.js 18.x LTS** installed ([Download here](https://nodejs.org/en/download/prebuilt-installer))
-  - ⚠️ **IMPORTANT:** Use Node.js **18.20.4 LTS** or higher in the 18.x series
-  - ❌ **DO NOT use Node.js 20.x or 22.x** - they have OpenSSL/TLS incompatibilities with MongoDB Atlas
+- ✅ **Node.js 18.x or 20.x** installed ([Download here](https://nodejs.org/en/download/prebuilt-installer))
+  - ✅ **Local development:** Node.js 18.20.4 LTS (recommended)
+  - ✅ **Vercel deployment:** Uses Node.js 20.x automatically
 - ✅ **MongoDB Atlas account** ([Sign up free](https://www.mongodb.com/cloud/atlas))
 - ✅ **Git** installed
 - ✅ **Code editor** (VS Code recommended)
@@ -120,7 +120,9 @@ git clone https://github.com/YOUR_USERNAME/ExpenseNavigator.git
 cd ExpenseNavigator
 ```
 
-### **Step 2: Install Node.js 18.x LTS**
+### **Step 2: Install Node.js**
+
+**Option A: Node.js 18.x LTS (Recommended for local)**
 
 1. Download Node.js 18.20.4 LTS from [nodejs.org](https://nodejs.org/en/download/prebuilt-installer)
 2. Install it (it will replace any existing version)
@@ -131,9 +133,11 @@ node --version
 # Should show: v18.20.4 (or another 18.x version)
 ```
 
-**Why Node.js 18.x?**
-- Node.js 20.x and 22.x have OpenSSL 3.0 which causes TLS errors with MongoDB Atlas
-- Node.js 18.x LTS uses OpenSSL 1.1.1 which is fully compatible
+**Option B: Node.js 20.x (Also compatible)**
+
+Works perfectly with both local development and Vercel deployment.
+
+**Note:** Vercel deployment uses Node.js 20.x regardless of your local version.
 
 ### **Step 3: Install Dependencies**
 

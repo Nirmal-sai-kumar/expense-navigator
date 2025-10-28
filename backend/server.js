@@ -1,8 +1,9 @@
 // Express server - Works both locally and on Vercel
 require('dotenv').config();
 
-// Node.js 18.x LTS - Compatible with MongoDB Atlas TLS/SSL
-// DO NOT use Node.js 20.x or 22.x - they have OpenSSL incompatibilities
+// Compatible with Node.js 18.x, 20.x, and higher
+// Local: Node.js 18.x LTS
+// Vercel: Node.js 20.x (configured in Vercel dashboard)
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
