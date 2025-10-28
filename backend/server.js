@@ -1,9 +1,10 @@
-// Express server - Works both locally and on Vercel
+// Express server - Works both locally, on Vercel, and on Render
 require('dotenv').config();
 
 // Compatible with Node.js 18.x, 20.x, and higher
 // Local: Node.js 18.x LTS
 // Vercel: Node.js 20.x (configured in Vercel dashboard)
+// Render: Node.js 20.x (configured in render.yaml)
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -150,11 +151,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server (only when not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
+// Start server - Works for both local development and Render
+// On Render, this will run automatically when the service starts
+// On Vercel, this is bypassed (serverless mode)
+if (require.main === module || process.env.NODE_ENV === 'production') {
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`\n✅ Server is running!`);
-        console.log(`📍 Local: http://localhost:${PORT}`);
+        console.log(`📍 Port: ${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
         console.log(`🗄️  Database: MongoDB Atlas`);
         console.log(`\n📚 API Endpoints:`);
         console.log(`   GET  /api/test-db - Test database connection`);
@@ -172,10 +176,10 @@ if (process.env.NODE_ENV !== 'production') {
         console.log(`   PUT  /api/admin/users/:id - Update user (admin only)`);
         console.log(`   DELETE /api/admin/users/:id - Delete user (admin only)`);
         console.log(`\n🌐 Pages:`);
-        console.log(`   http://localhost:${PORT}/ - Home`);
-        console.log(`   http://localhost:${PORT}/login - Login`);
-        console.log(`   http://localhost:${PORT}/register - Register`);
-        console.log(`   http://localhost:${PORT}/dashboard - Dashboard`);
+        console.log(`   / - Home`);
+        console.log(`   /login - Login`);
+        console.log(`   /register - Register`);
+        console.log(`   /dashboard - Dashboard`);
         console.log(`\n✨ Ready to accept requests!\n`);
     });
 }
