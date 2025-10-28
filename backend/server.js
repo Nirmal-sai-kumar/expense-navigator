@@ -1,10 +1,9 @@
 // Express server - Works both locally and on Vercel
 require('dotenv').config();
 
-// Only disable TLS rejection in development (not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+// Compatible with Node.js 18.x, 20.x, and higher
+// Local: Node.js 18.x LTS
+// Vercel: Node.js 20.x (configured in Vercel dashboard)
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
@@ -38,6 +37,16 @@ app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
 
 // API Routes
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        message: 'ExpenseNavigator API is running',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 
 // Test database connection
 app.all('/api/test-db', require('./api/test-db'));
