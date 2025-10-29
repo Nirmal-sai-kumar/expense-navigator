@@ -109,6 +109,28 @@
             text-align: center;
         }
 
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
         .loading {
             text-align: center;
             color: #666;
@@ -263,12 +285,26 @@
             event.preventDefault();
 
             const messageDiv = document.getElementById('expense-message');
-            messageDiv.innerHTML = '<p class="message" style="background: #d4edda; color: #155724;">Updating expense...</p>';
+            
+            const date = document.getElementById('expense-date').value;
+            const source = document.getElementById('source').value;
+            const amount = document.getElementById('expense-amount').value;
+            
+            // Validate inputs
+            if (!date || !source || !amount) {
+                showMessage('All fields are required.', 'error');
+                return false;
+            }
+
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                showMessage('Amount must be a positive number.', 'error');
+                return false;
+            }
 
             const formData = {
-                source: document.getElementById('source').value,
-                amount: parseFloat(document.getElementById('expense-amount').value),
-                date: document.getElementById('expense-date').value
+                source: source,
+                amount: parseFloat(amount),
+                date: date
             };
 
             try {
@@ -283,8 +319,9 @@
 
                 const data = await response.json();
 
-                if (data.success) {
-                    messageDiv.innerHTML = '<p class="message" style="background: #d4edda; color: #155724;">✓ Expense updated successfully!</p>';
+                // Check for success response
+                if (response.ok && data.success) {
+                    showMessage('Expense updated successfully!', 'success');
                     
                     console.log('✅ Expense updated successfully, redirecting to dashboard');
                     
@@ -293,13 +330,21 @@
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    messageDiv.innerHTML = `<p class="message" style="background: #f8d7da; color: #721c24;">✗ ${data.message || 'Failed to update expense'}</p>`;
+                    showMessage(data.message || 'Failed to update expense.', 'error');
                 }
             } catch (error) {
-                messageDiv.innerHTML = `<p class="message" style="background: #f8d7da; color: #721c24;">✗ Error: ${error.message}</p>`;
+                console.error('Error updating expense:', error);
+                showMessage('An error occurred while updating expense.', 'error');
             }
 
             return false;
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('expense-message');
+            messageDiv.textContent = message;
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.style.display = 'block';
         }
     </script>
 </body>

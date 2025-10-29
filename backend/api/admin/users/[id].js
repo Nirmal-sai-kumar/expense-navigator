@@ -65,45 +65,75 @@ module.exports = async (req, res) => {
         
         // PUT - Update user
         if (req.method === 'PUT') {
-            const { name, email, role, password } = req.body;
+            const { firstName, lastName, gender, phone, email, username, role } = req.body;
+            
+            // Validate required fields
+            if (!firstName || !lastName || !gender || !phone || !email || !username || !role) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'All fields are required.'
+                });
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid email format.'
+                });
+            }
+            
+            // Validate phone format (10 digits)
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phone)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Phone number must be 10 digits.'
+                });
+            }
+            
+            // Validate role value
+            if (!['user', 'admin'].includes(role)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid role. Must be "user" or "admin".'
+                });
+            }
+            
+            // Check if user exists
+            const existingUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+            if (!existingUser) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User not found.'
+                });
+            }
+            
+            // Check if email is already taken by another user
+            const emailExists = await usersCollection.findOne({
+                email: email,
+                _id: { $ne: new ObjectId(id) }
+            });
+            
+            if (emailExists) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email already in use by another user.'
+                });
+            }
             
             // Build update object
             const updateData = {
+                firstName: firstName,
+                lastName: lastName,
+                gender: gender,
+                phone: phone,
+                email: email.toLowerCase(),
+                username: username,
+                role: role,
                 updatedAt: new Date()
             };
-            
-            if (name) updateData.name = name;
-            if (email) {
-                // Validate email format
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid email format.'
-                    });
-                }
-                updateData.email = email.toLowerCase();
-            }
-            if (role) {
-                // Validate role value
-                if (!['user', 'admin'].includes(role)) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid role. Must be "user" or "admin".'
-                    });
-                }
-                updateData.role = role;
-            }
-            if (password) {
-                // Hash new password
-                if (password.length < 6) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Password must be at least 6 characters long.'
-                    });
-                }
-                updateData.password = await hashPassword(password);
-            }
             
             // Update user
             const result = await usersCollection.findOneAndUpdate(
@@ -115,17 +145,10 @@ module.exports = async (req, res) => {
                 }
             );
             
-            if (!result.value) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'User not found.'
-                });
-            }
-            
             return res.status(200).json({
                 success: true,
                 message: 'User updated successfully.',
-                data: result.value
+                data: result.value || result
             });
         }
         

@@ -60,60 +60,88 @@ module.exports = async (req, res) => {
         if (req.method === 'PUT') {
             const { source, amount, date } = req.body;
             
-            // Build update object with only provided fields
+            // Validate inputs
+            if (!source || !amount || !date) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'All fields are required.'
+                });
+            }
+            
+            if (isNaN(amount) || parseFloat(amount) <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Amount must be a positive number.'
+                });
+            }
+            
+            // Find expense first to check ownership
+            const expense = await expensesCollection.findOne({
+                _id: new ObjectId(id)
+            });
+            
+            if (!expense) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Expense not found.'
+                });
+            }
+            
+            // Compare userId as strings (handles both ObjectId and string)
+            if (expense.userId.toString() !== userId.toString()) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Unauthorized to update this expense.'
+                });
+            }
+            
+            // Update expense
             const updateData = {
+                source: source,
+                amount: parseFloat(amount),
+                date: new Date(date),
                 updatedAt: new Date()
             };
             
-            if (source) updateData.source = source;
-            if (amount) {
-                if (isNaN(amount) || parseFloat(amount) <= 0) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Amount must be a positive number.'
-                    });
-                }
-                updateData.amount = parseFloat(amount);
-            }
-            if (date) updateData.date = new Date(date);
-            
-            // Update expense
             const result = await expensesCollection.findOneAndUpdate(
-                {
-                    _id: new ObjectId(id),
-                    userId: userId // Ensure user can only update their own expenses
-                },
+                { _id: new ObjectId(id) },
                 { $set: updateData },
                 { returnDocument: 'after' }
             );
             
-            if (!result.value) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Expense not found or unauthorized.'
-                });
-            }
-            
+            // Return SUCCESS response with consistent format
             return res.status(200).json({
                 success: true,
                 message: 'Expense updated successfully.',
-                data: result.value
+                data: result.value || result
             });
         }
         
         // DELETE - Delete expense
         if (req.method === 'DELETE') {
-            const result = await expensesCollection.deleteOne({
-                _id: new ObjectId(id),
-                userId: userId // Ensure user can only delete their own expenses
+            // Find expense first to check ownership
+            const expense = await expensesCollection.findOne({
+                _id: new ObjectId(id)
             });
             
-            if (result.deletedCount === 0) {
+            if (!expense) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Expense not found or unauthorized.'
+                    message: 'Expense not found.'
                 });
             }
+            
+            // Compare userId as strings (handles both ObjectId and string)
+            if (expense.userId.toString() !== userId.toString()) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Unauthorized to delete this expense.'
+                });
+            }
+            
+            await expensesCollection.deleteOne({
+                _id: new ObjectId(id)
+            });
             
             return res.status(200).json({
                 success: true,
