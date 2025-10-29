@@ -160,26 +160,17 @@ if (require.main === module || process.env.NODE_ENV === 'production') {
         console.log(`📍 Port: ${PORT}`);
         console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
         console.log(`🗄️  Database: MongoDB Atlas`);
-        console.log(`\n📚 API Endpoints:`);
-        console.log(`   GET  /api/test-db - Test database connection`);
-        console.log(`   POST /api/setup-db - Setup database`);
-        console.log(`   POST /api/auth/register - Register new user`);
-        console.log(`   POST /api/auth/login - User login`);
-        console.log(`   POST /api/auth/logout - User logout`);
-        console.log(`   GET  /api/expenses - Get all expenses`);
-        console.log(`   POST /api/expenses - Create new expense`);
-        console.log(`   GET  /api/expenses/:id - Get expense by ID`);
-        console.log(`   PUT  /api/expenses/:id - Update expense`);
-        console.log(`   DELETE /api/expenses/:id - Delete expense`);
-        console.log(`   GET  /api/admin/users - Get all users (admin only)`);
-        console.log(`   GET  /api/admin/users/:id - Get user by ID (admin only)`);
-        console.log(`   PUT  /api/admin/users/:id - Update user (admin only)`);
-        console.log(`   DELETE /api/admin/users/:id - Delete user (admin only)`);
-        console.log(`\n🌐 Pages:`);
-        console.log(`   / - Home`);
-        console.log(`   /login - Login`);
-        console.log(`   /register - Register`);
-        console.log(`   /dashboard - Dashboard`);
+        
+        // Show clickable links only in local development
+        if (process.env.NODE_ENV !== 'production') {
+            const baseUrl = `http://localhost:${PORT}`;
+            console.log(`\n🌐 Pages:`);
+            console.log(`   🏠 Home:       ${baseUrl}/`);
+            console.log(`   🔐 Login:      ${baseUrl}/login`);
+            console.log(`   � Register:   ${baseUrl}/register`);
+            console.log(`   � Dashboard:  ${baseUrl}/dashboard`);
+        }
+        
         console.log(`\n✨ Ready to accept requests!\n`);
     });
 }
