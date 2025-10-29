@@ -5,50 +5,74 @@ nav h1 {
     text-align: left;
     flex-grow: 1; /* Ensures h1 takes up the leftmost space */
 }
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-    background-image: url('https://repository-images.githubusercontent.com/681667857/1c91d035-782a-4c11-8984-10eed278e3dc'); /* Replace with your image path */
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    height: 100vh; 
+    min-height: 100vh;
     margin: 0;
+    /* Reserve space for the fixed nav (see nav height below) */
+    padding-top: 52px; /* matches reduced nav height */
+}
+
+/* Make only the home page non-scrollable when body has class 'home' */
+.home {
+    overflow: hidden;
 }
 
 /* Navigation */
 
 
 nav {
-    background-color: #333;
-    padding: 0px;
+    background-color: #222;
     color: white;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 20px;
     align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 52px; /* reduced height for a shorter nav */
+    padding: 0 18px;
+    z-index: 999;
 }
 
 .nav-button {
     background-color: rgb(107, 9, 194); /* Button color */
     color: white; /* Text color */
     text-decoration: none;
-    padding: 5px 10px; /* Increased padding for a rectangular look */
-    margin: 0 5px;
-    border-radius: 5px; /* Slightly rounded edges */
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
+    padding: 6px 12px; /* compact padding */
+    margin: 0 6px;
+    border-radius: 6px; /* Slightly rounded edges */
+    font-size: 14px;
+    font-weight: 600;
+    transition: 0.2s;
     border: none;
     display: inline-block;
     text-align: center;
-    width: 90px; /* Fixed width for consistent rectangular shape */
-    height: 32px; /* Fixed height */
-    line-height: 32px; /* Centers text vertically */
-    text-align: center;
-    align-content: center;
+    width: auto; /* auto width so buttons match content */
+    height: auto;
+    line-height: normal;
+}
+
+/* Hero section used on index.html to display the full-screen picture without scrolling */
+.hero {
+    /* same artwork as before, but scoped to hero only */
+    background-image: url('https://repository-images.githubusercontent.com/681667857/1c91d035-782a-4c11-8984-10eed278e3dc');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* viewport minus nav height */
+    height: calc(100vh - 52px);
+    min-height: calc(100vh - 52px);
+    width: 100%;
 }
 
 .nav-button:hover {
