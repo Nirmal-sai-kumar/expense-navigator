@@ -17,6 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Populate username in dashboard greeting (uses name from registration)
+    try {
+        const usernameEl = document.getElementById('username-display');
+        if (usernameEl) {
+            // Prefer `username`, fallback to `name`, `firstName`, or `email`
+            usernameEl.textContent = user.username || user.name || user.firstName || user.email || 'User';
+        }
+    } catch (err) {
+        console.warn('Could not set username display:', err);
+    }
+
     // Set max date to today
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('expense-date').setAttribute('max', today);
