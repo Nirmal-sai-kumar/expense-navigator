@@ -113,9 +113,15 @@ You should see:
 2. Click **"Initialize Database"** button
 3. This creates the default admin user
 
+**Production note:** if `NODE_ENV=production`, set `SETUP_TOKEN` and open:
+`http://localhost:5001/setup?setupToken=YOUR_SETUP_TOKEN`
+Then set `DEFAULT_ADMIN_PASSWORD` before running setup.
+
 **Default Admin Credentials:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `admin` (or `DEFAULT_ADMIN_USERNAME` if configured)
+- Password:
+   - **Development:** generated during setup and shown once on the setup page
+   - **Production:** set `DEFAULT_ADMIN_PASSWORD` (password is not displayed by the API)
 
 ---
 
@@ -205,8 +211,9 @@ JWT_SECRET = your_super_secret_jwt_key
 
 ### **Step 6: Initialize Production Database**
 
-1. Visit: `https://your-app-name.onrender.com/setup`
-2. Click **"Initialize Database"**
+1. Set `SETUP_TOKEN` and `DEFAULT_ADMIN_PASSWORD` in Render environment variables
+2. Visit: `https://your-app-name.onrender.com/setup?setupToken=YOUR_SETUP_TOKEN`
+3. Click **"Initialize Database"**
 3. Login with admin credentials
 
 ---
@@ -248,8 +255,10 @@ ExpenseNavigator/
 After database initialization:
 
 **Admin User:**
-- Username: `admin`
-- Password: `admin123`
+- Username: `admin` (or `DEFAULT_ADMIN_USERNAME` if configured)
+- Password:
+   - **Development:** generated during setup and shown once on the setup page
+   - **Production:** set `DEFAULT_ADMIN_PASSWORD` (password is not displayed by the API)
 - Access: Full system control
 
 **⚠️ Security:** Change the default admin password immediately after first login!
@@ -264,6 +273,10 @@ After database initialization:
 | `JWT_SECRET` | Secret key for JWT tokens | `my-super-secret-key-123` |
 | `PORT` | Server port (optional) | `5001` |
 | `NODE_ENV` | Environment mode | `development` or `production` |
+| `SETUP_TOKEN` | Protects `POST /api/setup-db` in production (send as `X-Setup-Token`) | `long-random-token` |
+| `DEFAULT_ADMIN_USERNAME` | Bootstrap admin username | `admin` |
+| `DEFAULT_ADMIN_EMAIL` | Bootstrap admin email | `admin@expensenavigator.com` |
+| `DEFAULT_ADMIN_PASSWORD` | Bootstrap admin password (required in production) | `strong-password` |
 
 ---
 
@@ -290,7 +303,7 @@ npm start
 **Solution:**
 1. Visit `http://localhost:5001/setup` to initialize database
 2. Clear browser cookies and cache
-3. Use correct credentials: `admin` / `admin123`
+3. Use the admin credentials created during setup (in development the setup page shows the generated password once)
 
 ### **Issue: Render Deployment Failed**
 

@@ -2,6 +2,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 
 // Connection URI from environment
 const uri = process.env.MONGODB_URI;
+const directUri = process.env.MONGODB_URI_DIRECT;
 if (!uri) {
     throw new Error('MONGODB_URI is not defined in environment variables');
 }
@@ -66,6 +67,46 @@ async function connectToDatabase() {
         console.error('❌ MongoDB connection failed!');
         console.error('Error type:', error.name);
         console.error('Error message:', error.message);
+
+        const isSrvDnsFailure =
+            error?.syscall === 'querySrv' ||
+            (typeof error?.message === 'string' && error.message.includes('querySrv'));
+
+        if (isSrvDnsFailure) {
+            console.error('\n⚠️  Detected SRV DNS lookup failure.');
+            console.error('This usually happens when Node.js cannot resolve SRV records (mongodb+srv://) due to DNS/VPN/corporate network settings.');
+            console.error('Fix options:');
+            console.error('  1) Use a STANDARD connection string (mongodb://...host1,host2,host3/...) from MongoDB Atlas.');
+            console.error('  2) Change DNS servers to a public resolver (e.g., 1.1.1.1 or 8.8.8.8) or disable VPN/proxy.');
+            console.error('  3) Set MONGODB_URI_DIRECT to the standard mongodb:// connection string as a fallback.');
+
+            if (directUri) {
+                console.log('\n🔁 Retrying with MONGODB_URI_DIRECT fallback...');
+                try {
+                    const client = new MongoClient(directUri, {
+                        serverSelectionTimeoutMS: 30000,
+                        connectTimeoutMS: 30000,
+                        socketTimeoutMS: 45000,
+                        maxPoolSize: 10,
+                        minPoolSize: 2,
+                        retryWrites: true,
+                        retryReads: true,
+                    });
+
+                    await client.connect();
+                    const db = client.db('expense_navigator');
+                    await db.admin().ping();
+
+                    cachedClient = client;
+                    cachedDb = db;
+
+                    console.log('✅ Connected using MONGODB_URI_DIRECT');
+                    return { client, db };
+                } catch (fallbackError) {
+                    console.error('❌ Fallback connection failed too:', fallbackError?.message || fallbackError);
+                }
+            }
+        }
         
         // Clear cache on error
         cachedClient = null;

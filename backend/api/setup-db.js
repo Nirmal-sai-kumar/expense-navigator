@@ -1,6 +1,12 @@
 // Setup database collections and indexes
 const { connectToDatabase } = require('./_lib/db');
 const { hashPassword } = require('./_lib/auth');
+const crypto = require('crypto');
+
+function generateRandomPassword() {
+    // URL-safe; good enough for a bootstrap password.
+    return crypto.randomBytes(14).toString('base64url');
+}
 
 module.exports = async (req, res) => {
     try {
@@ -10,6 +16,31 @@ module.exports = async (req, res) => {
                 success: false,
                 message: 'Method not allowed. Use POST.'
             });
+        }
+
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        // In production, protect this endpoint so random visitors cannot create/modify admin accounts.
+        if (isProduction) {
+            const setupToken = process.env.SETUP_TOKEN;
+            if (!setupToken) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Setup is disabled in production (SETUP_TOKEN is not configured).'
+                });
+            }
+
+            const providedToken =
+                req.headers['x-setup-token'] ||
+                req.query?.setupToken ||
+                req.body?.setupToken;
+
+            if (providedToken !== setupToken) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Access denied. Invalid setup token.'
+                });
+            }
         }
         
         const { db } = await connectToDatabase();
@@ -31,17 +62,33 @@ module.exports = async (req, res) => {
         const adminExists = await usersCollection.findOne({ role: 'admin' });
         
         let adminCreated = false;
+        let adminPasswordForDisplay;
         if (!adminExists) {
-            // Create default admin user with ALL fields
-            const hashedPassword = await hashPassword('admin123');
+            const adminUsername = (process.env.DEFAULT_ADMIN_USERNAME || 'admin').toLowerCase();
+            const adminEmail = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@expensenavigator.com').toLowerCase();
+
+            // Prefer explicit password via env; otherwise generate one for development.
+            let adminPlainPassword = process.env.DEFAULT_ADMIN_PASSWORD;
+            if (!adminPlainPassword) {
+                if (isProduction) {
+                    return res.status(500).json({
+                        success: false,
+                        message: 'DEFAULT_ADMIN_PASSWORD must be set in production before running setup.'
+                    });
+                }
+                adminPlainPassword = generateRandomPassword();
+                adminPasswordForDisplay = adminPlainPassword;
+            }
+
+            const hashedPassword = await hashPassword(adminPlainPassword);
             
             await usersCollection.insertOne({
                 firstName: 'Admin',
                 lastName: 'User',
                 gender: 'Other',
-                email: 'admin@expensenavigator.com',
+                email: adminEmail,
                 phone: '0000000000',
-                username: 'admin',
+                username: adminUsername,
                 password: hashedPassword,
                 role: 'admin',
                 createdAt: new Date(),
@@ -59,10 +106,13 @@ module.exports = async (req, res) => {
                 indexes: 'Created successfully',
                 adminUser: adminCreated ? {
                     created: true,
-                    username: 'admin',
-                    email: 'admin@expensenavigator.com',
-                    password: 'admin123',
-                    note: 'Please change the admin password after first login!'
+                    username: (process.env.DEFAULT_ADMIN_USERNAME || 'admin').toLowerCase(),
+                    email: (process.env.DEFAULT_ADMIN_EMAIL || 'admin@expensenavigator.com').toLowerCase(),
+                    // In development we may generate a bootstrap password; in production never return passwords.
+                    ...(adminPasswordForDisplay ? { password: adminPasswordForDisplay } : {}),
+                    note: adminPasswordForDisplay
+                        ? 'This password is shown once. Please change it after first login.'
+                        : 'Password is set via DEFAULT_ADMIN_PASSWORD (not returned by API).'
                 } : {
                     created: false,
                     note: 'Admin user already exists'

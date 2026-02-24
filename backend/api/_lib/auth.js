@@ -3,7 +3,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Secret key for JWT token generation (from environment variables)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET is required in production');
+}
+
+// Dev-only fallback so local setup still works without extra config.
+const EFFECTIVE_JWT_SECRET = JWT_SECRET || 'dev-only-insecure-secret-change-me';
 const JWT_EXPIRES_IN = '7d'; // Token expires in 7 days
 
 /**
@@ -37,7 +43,7 @@ const verifyPassword = comparePassword;
  * @returns {string} - JWT token
  */
 function generateToken(payload) {
-    const token = jwt.sign(payload, JWT_SECRET, {
+    const token = jwt.sign(payload, EFFECTIVE_JWT_SECRET, {
         expiresIn: JWT_EXPIRES_IN
     });
     return token;
@@ -50,7 +56,7 @@ function generateToken(payload) {
  */
 function verifyToken(token) {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, EFFECTIVE_JWT_SECRET);
         return decoded;
     } catch (error) {
         // Token is invalid or expired
