@@ -14,3 +14,16 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: SETUP_TOKEN
+        sync: false
+      - key: DEFAULT_ADMIN_PASSWORD
+        sync: false
+      - key: DEFAULT_ADMIN_USERNAME
+        value: admin
+      - key: DEFAULT_ADMIN_EMAIL
+        value: admin@expensenavigator.com
+
+      # Optional fallback if mongodb+srv SRV lookups fail in your environment.
+      # Provide Atlas "Standard connection string" (mongodb://...)
+      - key: MONGODB_URI_DIRECT
+        sync: false
