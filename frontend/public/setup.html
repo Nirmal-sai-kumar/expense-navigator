@@ -228,25 +228,39 @@
             resultDiv.innerHTML = '<p>⏳ Initializing database, please wait...</p>';
             
             try {
+                // Optional: allow passing a setup token via URL for production use.
+                // Example: /setup?setupToken=YOUR_TOKEN
+                const urlParams = new URLSearchParams(window.location.search);
+                const setupToken = urlParams.get('setupToken');
+
                 const response = await fetch('/api/setup-db', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify(setupToken ? { setupToken } : {})
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
+                    const admin = data?.data?.adminUser;
+                    const adminUsername = admin?.username || 'admin';
+                    const adminEmail = admin?.email || 'admin@expensenavigator.com';
+                    const adminPassword = admin?.password;
+
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
                         <h3>✅ Setup Complete!</h3>
                         <p>${data.message}</p>
                         <div class="admin-info">
                             <strong>📧 Default Admin Account Created:</strong>
-                            Username: <code>admin</code><br>
-                            Password: <code>admin123</code>
-                            <small>⚠️ Important: Change this password after first login!</small>
+                            Username: <code>${adminUsername}</code><br>
+                            Email: <code>${adminEmail}</code><br>
+                            ${adminPassword
+                                ? `Password: <code>${adminPassword}</code><small>⚠️ This password is shown once. Change it after first login.</small>`
+                                : `<small>ℹ️ Password is configured on the server (DEFAULT_ADMIN_PASSWORD) and is not displayed here.</small>`
+                            }
                         </div>
                         <a href="/login.html" class="link-btn">→ Go to Login Page</a>
                     `;
