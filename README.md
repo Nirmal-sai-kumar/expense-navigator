@@ -1,5 +1,7 @@
 # 💰 ExpenseNavigator
 
+🔗 **Live Demo:** https://expense-navigator-7yny.onrender.com/
+
 A modern, cloud-based expense tracking application that helps you manage expenses efficiently with role-based access control for users and admins.
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen) ![Express](https://img.shields.io/badge/Express-4.x-blue)
